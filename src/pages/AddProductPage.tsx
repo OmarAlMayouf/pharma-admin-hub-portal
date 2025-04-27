@@ -284,34 +284,62 @@ const AddProductPage: React.FC = () => {
                 {loading ? (
                   <p className="text-center py-8">Loading branches...</p>
                 ) : (
-                  <div
-                    className="max-h-96 overflow-y-auto"
-                    style={{ scrollbarColor: "#374151 #1f2937" }}
-                  >
-                    {branches.length === 0 ? (
-                      <p>No branches found.</p>
-                    ) : (
-                      branches.map((branch) => (
-                        <div
-                          key={branch?.$id}
-                          className="flex items-center space-x-2 p-3 border-t border-gray-800 hover:bg-gray-800/50"
+                  <>
+                    {branches.length > 0 && (
+                      <div className="flex justify-end mb-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const allBranchIds = branches.map(
+                              (branch) => branch.$id
+                            );
+                            const allSelected = allBranchIds.every((id) =>
+                              formData.branches.includes(id)
+                            );
+
+                            setFormData((prev) => ({
+                              ...prev,
+                              branches: allSelected ? [] : allBranchIds,
+                            }));
+                          }}
                         >
-                          <Checkbox
-                            checked={formData.branches.includes(branch?.$id)}
-                            onCheckedChange={(checked) =>
-                              handleBranchToggle(branch?.$id, !!checked)
-                            }
-                          />
-                          <div>
-                            <p className="font-medium">{branch.name}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {cleanStreetName(branch.street)}, {branch.city}
-                            </p>
-                          </div>
-                        </div>
-                      ))
+                          {formData.branches.length === branches.length
+                            ? "Deselect All"
+                            : "Select All"}
+                        </Button>
+                      </div>
                     )}
-                  </div>
+
+                    <div
+                      className="max-h-96 overflow-y-auto"
+                      style={{ scrollbarColor: "#374151 #1f2937" }}
+                    >
+                      {branches.length === 0 ? (
+                        <p>No branches found.</p>
+                      ) : (
+                        branches.map((branch) => (
+                          <div
+                            key={branch?.$id}
+                            className="flex items-center space-x-2 p-3 border-t border-gray-800 hover:bg-gray-800/50"
+                          >
+                            <Checkbox
+                              checked={formData.branches.includes(branch?.$id)}
+                              onCheckedChange={(checked) =>
+                                handleBranchToggle(branch?.$id, !!checked)
+                              }
+                            />
+                            <div>
+                              <p className="font-medium">{branch.name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {cleanStreetName(branch.street)}, {branch.city}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </>
                 )}
 
                 <div className="flex justify-between pt-4">
@@ -327,7 +355,9 @@ const AddProductPage: React.FC = () => {
 
             {step === 3 && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Alternative Products (Optional)</h3>
+                <h3 className="text-lg font-semibold">
+                  Alternative Products (Optional)
+                </h3>
 
                 <Input
                   placeholder="Search products..."
@@ -339,40 +369,70 @@ const AddProductPage: React.FC = () => {
                 {loading ? (
                   <p className="text-center py-8">Loading products...</p>
                 ) : (
-                  <div
-                    className="max-h-96 overflow-y-auto"
-                    style={{ scrollbarColor: "#374151 #1f2937" }}
-                  >
-                    {filteredProducts.map((product) => (
-                      <div
-                        key={product?.$id}
-                        className="flex items-center space-x-2 p-3 border-t border-gray-800 hover:bg-gray-800/50"
-                      >
-                        <Checkbox
-                          checked={formData.alternatives.includes(product?.$id)}
-                          onCheckedChange={(checked) =>
-                            handleAlternativeToggle(product?.$id, !!checked)
-                          }
-                        />
-                        <div className="flex items-center space-x-2">
-                          <img
-                            src={
-                              product.image ||
-                              "https://placehold.co/100x100?text=Product"
+                  <>
+                    {filteredProducts.length > 0 && (
+                      <div className="flex justify-end mb-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const allProductIds = filteredProducts.map(
+                              (product) => product.$id
+                            );
+                            const allSelected = allProductIds.every((id) =>
+                              formData.alternatives.includes(id)
+                            );
+
+                            setFormData((prev) => ({
+                              ...prev,
+                              alternatives: allSelected ? [] : allProductIds,
+                            }));
+                          }}
+                        >
+                          {formData.alternatives.length ===
+                          filteredProducts.length
+                            ? "Deselect All"
+                            : "Select All"}
+                        </Button>
+                      </div>
+                    )}
+                    <div
+                      className="max-h-96 overflow-y-auto"
+                      style={{ scrollbarColor: "#374151 #1f2937" }}
+                    >
+                      {filteredProducts.map((product) => (
+                        <div
+                          key={product?.$id}
+                          className="flex items-center space-x-2 p-3 border-t border-gray-800 hover:bg-gray-800/50"
+                        >
+                          <Checkbox
+                            checked={formData.alternatives.includes(
+                              product?.$id
+                            )}
+                            onCheckedChange={(checked) =>
+                              handleAlternativeToggle(product?.$id, !!checked)
                             }
-                            alt={product.name}
-                            className="w-10 h-10 rounded-md object-cover"
                           />
-                          <div>
-                            <p className="font-medium">{product.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              SAR {product.price.toFixed(2)}
-                            </p>
+                          <div className="flex items-center space-x-2">
+                            <img
+                              src={
+                                product.image ||
+                                "https://placehold.co/100x100?text=Product"
+                              }
+                              alt={product.name}
+                              className="w-10 h-10 rounded-md object-cover"
+                            />
+                            <div>
+                              <p className="font-medium">{product.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                SAR {product.price.toFixed(2)}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  </>
                 )}
 
                 <div className="flex justify-between pt-4">
