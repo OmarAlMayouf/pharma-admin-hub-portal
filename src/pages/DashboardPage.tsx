@@ -21,7 +21,7 @@ const DashboardPage: React.FC = () => {
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-pharmacy-900">Pharmacy Admin Portal</h1>
+            <h1 className="text-2xl font-bold text-pharmacy-900">Pharmaseek Admin Portal</h1>
             <p className="text-pharmacy-600">{user?.pharmacyName} (ID: {user?.pharmacyId})</p>
           </div>
           <Button 

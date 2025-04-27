@@ -277,7 +277,7 @@ const ModifyProductPage: React.FC = () => {
                             <div className="font-medium">{product.name}</div>
                             <div className="text-sm text-muted-foreground truncate">{product.description}</div>
                           </div>
-                          <div className="font-medium">${product.price.toFixed(2)}</div>
+                          <div className="font-medium">{product.price.toFixed(2)} SAR</div>
                           <Button variant="ghost" size="icon" className="ml-2">
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -320,7 +320,7 @@ const ModifyProductPage: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="price">Price (in $) *</Label>
+                      <Label htmlFor="price">Price (in SAR) *</Label>
                       <Input
                         id="price"
                         name="price"

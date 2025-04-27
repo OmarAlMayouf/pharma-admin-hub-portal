@@ -198,7 +198,7 @@ const AddProductPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="price">Price (in $) *</Label>
+                  <Label htmlFor="price">Price (in SAR) *</Label>
                   <Input
                     id="price"
                     name="price"

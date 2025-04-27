@@ -202,7 +202,7 @@ const DeleteProductPage: React.FC = () => {
                             <p className="text-xs text-muted-foreground truncate max-w-sm">{product.description}</p>
                           </div>
                         </div>
-                        <div className="text-right font-medium">${product.price.toFixed(2)}</div>
+                        <div className="text-right font-medium">{product.price.toFixed(2)} SAR</div>
                         <div className="text-right">
                           <AlertDialog>
                             <AlertDialogTrigger asChild>

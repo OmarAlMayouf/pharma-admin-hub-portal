@@ -38,7 +38,7 @@ const LoginPage: React.FC = () => {
         <Card>
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center text-pharmacy-900">
-              Pharmacy Admin Portal
+              Pharmaseek Admin Portal
             </CardTitle>
             <CardDescription className="text-center">
               Sign in to manage your pharmacy products
