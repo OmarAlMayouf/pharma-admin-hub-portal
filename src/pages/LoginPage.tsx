@@ -33,21 +33,21 @@ const LoginPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pharmacy-50 to-pharmacy-200 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
       <div className="w-full max-w-md">
-        <Card>
+        <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center text-pharmacy-900">
+            <CardTitle className="text-2xl font-bold text-center text-gray-100">
               Pharmaseek Admin Portal
             </CardTitle>
-            <CardDescription className="text-center">
+            <CardDescription className="text-center text-gray-400">
               Sign in to manage your pharmacy products
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="pharmacyId">Pharmacy ID</Label>
+                <Label htmlFor="pharmacyId" className="text-gray-200">Pharmacy ID</Label>
                 <Input
                   id="pharmacyId"
                   placeholder="Enter your pharmacy ID"
@@ -55,10 +55,11 @@ const LoginPage: React.FC = () => {
                   onChange={(e) => setPharmacyId(e.target.value)}
                   required
                   disabled={isSubmitting}
+                  className="bg-gray-800/50 border-gray-700 text-gray-100 placeholder:text-gray-500"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-gray-200">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -68,11 +69,12 @@ const LoginPage: React.FC = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={isSubmitting}
+                    className="bg-gray-800/50 border-gray-700 text-gray-100 placeholder:text-gray-500"
                   />
                   <Button
                     type="button"
                     variant="ghost"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-gray-400 hover:text-gray-300"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
@@ -87,7 +89,7 @@ const LoginPage: React.FC = () => {
             <CardFooter>
               <Button
                 type="submit"
-                className="w-full bg-pharmacy-600 hover:bg-pharmacy-700"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -102,7 +104,7 @@ const LoginPage: React.FC = () => {
             </CardFooter>
           </form>
         </Card>
-        <div className="mt-4 text-center text-sm text-gray-600">
+        <div className="mt-4 text-center text-sm text-gray-400">
           <p>Demo Credentials:</p>
           <p>Pharmacy ID: PHARM123, Password: admin123</p>
         </div>
