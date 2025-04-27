@@ -20,10 +20,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/components/ui/use-toast";
 import { NewBranchForm } from "@/types/pharmacy";
-
 const branchFormSchema = z.object({
   name: z.string().min(1, "Branch name is required"),
-  site_url: z.string().url().optional(),
+  site_url: z
+    .string()
+    .optional()
+    .refine((val) => val === "" || z.string().url().safeParse(val).success, {
+      message: "Invalid URL format",
+    }),
   borough: z.string().optional(),
   street: z.string().optional(),
   city: z.string().optional(),
@@ -38,8 +42,15 @@ const branchFormSchema = z.object({
   rating: z.number().min(0).max(5).optional(),
   working_hours: z.string().optional(),
   about: z.string().optional(),
-  location_link: z.string().url().optional(),
+  location_link: z
+    .string()
+    .optional()
+    .refine((val) => val === "" || z.string().url().safeParse(val).success, {
+      message: "Invalid URL format",
+    }),
 });
+
+
 
 const AddBranchPage: React.FC = () => {
   const { user } = useAuth();
@@ -71,7 +82,7 @@ const AddBranchPage: React.FC = () => {
         title: "Branch Added Successfully",
         description: "The new branch has been added to your pharmacy.",
       });
-      navigate("/branches");
+      navigate("/dashboard");
     } catch (error) {
       toast({
         variant: "destructive",
@@ -108,12 +119,12 @@ const AddBranchPage: React.FC = () => {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Branch Name *</FormLabel>
+                      <FormLabel className="text-white">Branch Name *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Enter branch name"
                           {...field}
-                          className="bg-gray-900/50"
+                          className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                         />
                       </FormControl>
                       <FormMessage />
@@ -127,7 +138,7 @@ const AddBranchPage: React.FC = () => {
                     name="latitude"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Latitude *</FormLabel>
+                        <FormLabel className="text-white">Latitude *</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -135,7 +146,7 @@ const AddBranchPage: React.FC = () => {
                             placeholder="Enter latitude"
                             {...field}
                             onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                            className="bg-gray-900/50"
+                            className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                           />
                         </FormControl>
                         <FormMessage />
@@ -148,7 +159,7 @@ const AddBranchPage: React.FC = () => {
                     name="longitude"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Longitude *</FormLabel>
+                        <FormLabel className="text-white">Longitude *</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -156,7 +167,7 @@ const AddBranchPage: React.FC = () => {
                             placeholder="Enter longitude"
                             {...field}
                             onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                            className="bg-gray-900/50"
+                            className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                           />
                         </FormControl>
                         <FormMessage />
@@ -171,12 +182,12 @@ const AddBranchPage: React.FC = () => {
                     name="street"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Street</FormLabel>
+                        <FormLabel className="text-white">Street</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Enter street"
                             {...field}
-                            className="bg-gray-900/50"
+                            className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                           />
                         </FormControl>
                         <FormMessage />
@@ -189,12 +200,12 @@ const AddBranchPage: React.FC = () => {
                     name="borough"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Borough</FormLabel>
+                        <FormLabel className="text-white">Borough</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Enter borough"
                             {...field}
-                            className="bg-gray-900/50"
+                            className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                           />
                         </FormControl>
                         <FormMessage />
@@ -207,12 +218,12 @@ const AddBranchPage: React.FC = () => {
                     name="city"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>City</FormLabel>
+                        <FormLabel className="text-white">City</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Enter city"
                             {...field}
-                            className="bg-gray-900/50"
+                            className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                           />
                         </FormControl>
                         <FormMessage />
@@ -226,13 +237,13 @@ const AddBranchPage: React.FC = () => {
                   name="site_url"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Website URL</FormLabel>
+                      <FormLabel className="text-white">Website URL</FormLabel>
                       <FormControl>
                         <Input
                           type="url"
                           placeholder="Enter website URL"
                           {...field}
-                          className="bg-gray-900/50"
+                          className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                         />
                       </FormControl>
                       <FormMessage />
@@ -245,13 +256,13 @@ const AddBranchPage: React.FC = () => {
                   name="location_link"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Location Link</FormLabel>
+                      <FormLabel className="text-white">Location Link</FormLabel>
                       <FormControl>
                         <Input
                           type="url"
                           placeholder="Enter location link (e.g., Google Maps)"
                           {...field}
-                          className="bg-gray-900/50"
+                          className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                         />
                       </FormControl>
                       <FormMessage />
@@ -264,12 +275,13 @@ const AddBranchPage: React.FC = () => {
                   name="working_hours"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Working Hours</FormLabel>
+                      <FormLabel className="text-white">Working Hours</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="e.g., Mon-Fri: 9 AM - 6 PM"
+                        <Textarea
+                          placeholder='e.g., {"Monday": "8AM-1AM", "Tuesday":"8AM-1AM"...}'
                           {...field}
-                          className="bg-gray-900/50"
+                          className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500 resize-none max-h-20"
+                          style={{ scrollbarColor: "#374151 #1f2937" }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -282,7 +294,7 @@ const AddBranchPage: React.FC = () => {
                   name="rating"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Rating</FormLabel>
+                      <FormLabel className="text-white">Rating</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -292,7 +304,7 @@ const AddBranchPage: React.FC = () => {
                           placeholder="Enter rating (0-5)"
                           {...field}
                           onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                          className="bg-gray-900/50"
+                          className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                         />
                       </FormControl>
                       <FormMessage />
@@ -305,12 +317,13 @@ const AddBranchPage: React.FC = () => {
                   name="about"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>About</FormLabel>
+                      <FormLabel className="text-white">About</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Enter branch description"
                           {...field}
-                          className="bg-gray-900/50"
+                          className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500 resize-none max-h-20"
+                          style={{ scrollbarColor: "#374151 #1f2937" }}
                         />
                       </FormControl>
                       <FormMessage />

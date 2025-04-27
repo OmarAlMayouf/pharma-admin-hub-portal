@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { signIn } from "@/services/appwrite";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Eye, EyeOff } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -11,30 +13,36 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 const LoginPage: React.FC = () => {
-  const { user, loading, login } = useAuth();
+  const { isAuthenticated, checkAuth } = useAuth();
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   const [pharmacyId, setPharmacyId] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!pharmacyId.trim() || !password.trim()) return;
-
+    setError(null);
     setIsSubmitting(true);
     try {
-      await login(pharmacyId, password);
+      await signIn(pharmacyId, password);
+      await checkAuth();
+    } catch (error) {
+      setError(error.message || "An error occurred during sign-in.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // If already logged in, redirect to dashboard
-  if (user) {
+  if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -52,6 +60,9 @@ const LoginPage: React.FC = () => {
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
+              {error && (
+                <div className="text-red-500 text-sm text-center">{error}</div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="pharmacyId" className="text-gray-200">
                   Pharmacy ID

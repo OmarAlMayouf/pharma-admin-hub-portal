@@ -1,112 +1,95 @@
+import { createContext, useContext, useEffect, useState } from "react";
+import { checkSession, signOut, loadPharmacyData } from "@/services/appwrite";
 
-import React, { createContext, useState, useContext, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { AuthContextType, User } from "@/types/auth";
-import { useToast } from "@/components/ui/use-toast";
+type AuthContextType = {
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  pharmacy: {
+    id: string;
+    name: string;
+  } | null;
+  logout: () => Promise<void>;
+  checkAuth: () => Promise<void>;
+};
 
-// Mock data for demo purposes
-const MOCK_USERS = [
-  { 
-    id: "1", 
-    pharmacyId: "PHARM123", 
-    password: "admin123", 
-    pharmacyName: "HealthCare Pharmacy" 
-  },
-  { 
-    id: "2", 
-    pharmacyId: "PHARM456", 
-    password: "admin456", 
-    pharmacyName: "MediCare Pharmacy" 
-  },
-];
+const AuthContext = createContext<AuthContextType>({
+  isAuthenticated: false,
+  isLoading: true,
+  pharmacy: null,
+  logout: async () => {},
+  checkAuth: async () => {},
+});
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [authState, setAuthState] = useState<AuthContextType>({
+    isAuthenticated: false,
+    isLoading: true,
+    pharmacy: null,
+    logout: async () => {},
+    checkAuth: async () => {},
+  });
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    // Check if user is already logged in from localStorage
-    const storedUser = localStorage.getItem("pharmacy-user");
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch (e) {
-        localStorage.removeItem("pharmacy-user");
-      }
-    }
-    setLoading(false);
-  }, []);
-
-  const login = async (pharmacyId: string, password: string): Promise<void> => {
-    setLoading(true);
-    setError(null);
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
+  const checkAuth = async () => {
     try {
-      // Mock authentication logic
-      const foundUser = MOCK_USERS.find(
-        u => u.pharmacyId === pharmacyId && u.password === password
-      );
+      const session = await checkSession();
+      const pharmacyId = localStorage.getItem("pharmacyId");
 
-      if (!foundUser) {
-        throw new Error("Invalid pharmacy ID or password");
+      if (session && pharmacyId) {
+        const pharmacyData = await loadPharmacyData(pharmacyId);
+        setAuthState((prev) => ({
+          ...prev,
+          isAuthenticated: !!pharmacyData,
+          isLoading: false,
+          pharmacy: pharmacyData,
+        }));
+      } else {
+        await signOut();
+        setAuthState((prev) => ({
+          ...prev,
+          isAuthenticated: false,
+          isLoading: false,
+          pharmacy: null,
+        }));
       }
-
-      const loggedInUser = {
-        id: foundUser.id,
-        pharmacyId: foundUser.pharmacyId,
-        pharmacyName: foundUser.pharmacyName,
-      };
-
-      setUser(loggedInUser);
-      localStorage.setItem("pharmacy-user", JSON.stringify(loggedInUser));
-      toast({
-        title: "Login Successful",
-        description: `Welcome to ${foundUser.pharmacyName} Admin Portal`,
-      });
-      navigate("/dashboard");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "An unknown error occurred";
-      setError(message);
-      toast({
-        variant: "destructive",
-        title: "Login Failed",
-        description: message,
-      });
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      await signOut();
+      setAuthState((prev) => ({
+        ...prev,
+        isAuthenticated: false,
+        isLoading: false,
+        pharmacy: null,
+      }));
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("pharmacy-user");
-    toast({
-      title: "Signed Out",
-      description: "You have been successfully signed out",
-    });
-    navigate("/");
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      localStorage.removeItem("pharmacySession");
+      localStorage.removeItem("pharmacyId");
+      setAuthState({
+        isAuthenticated: false,
+        isLoading: false,
+        pharmacy: null,
+        logout: handleLogout,
+        checkAuth,
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, login, logout }}>
+    <AuthContext.Provider
+      value={{ ...authState, logout: handleLogout, checkAuth }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);

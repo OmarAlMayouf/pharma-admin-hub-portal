@@ -107,14 +107,6 @@ const AddProductPage: React.FC = () => {
         });
         return;
       }
-      if (!formData.imageUrl.trim()) {
-        toast({
-          variant: "destructive",
-          title: "Required Field Missing",
-          description: "Image URL is required.",
-        });
-        return;
-      }
     }
     setStep((prev) => prev + 1);
   };
@@ -268,14 +260,13 @@ const AddProductPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="imageUrl">Image URL *</Label>
+                  <Label htmlFor="imageUrl">Image URL</Label>
                   <Input
                     id="imageUrl"
                     name="imageUrl"
                     value={formData.imageUrl}
                     onChange={handleInputChange}
                     placeholder="Enter image URL"
-                    required
                     className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                   />
                 </div>

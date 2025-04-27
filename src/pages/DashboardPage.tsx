@@ -17,11 +17,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const DashboardPage: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { pharmacy, logout, isLoading } = useAuth();
   const navigate = useNavigate();
+
+  if (isLoading) {
+    return <div className="min-h-screen dark-gradient flex items-center justify-center text-white">Loading...</div>;
+  }
+
+  if(!pharmacy) {
+    return <Navigate to="/" />;
+  }
 
   return (
     <div className="min-h-screen dark-gradient">
@@ -32,7 +40,7 @@ const DashboardPage: React.FC = () => {
               Pharmaseek Admin Portal
             </h1>
             <p className="text-gray-400">
-              {user?.pharmacyName} (ID: {user?.pharmacyId})
+              {pharmacy?.name} (ID: {pharmacy?.id})
             </p>
           </div>
           <Button
@@ -52,12 +60,16 @@ const DashboardPage: React.FC = () => {
             <LayoutDashboard className="h-5 w-5" />
             Dashboard
           </h2>
-          <p className="text-gray-400">Manage your pharmacy products and branches</p>
+          <p className="text-gray-400">
+            Manage your pharmacy products and branches
+          </p>
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-4">
           <div>
-            <h3 className="text-lg font-medium text-white mb-4">Product Management</h3>
+            <h3 className="text-lg font-medium text-white mb-4">
+              Product Management
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Product management cards */}
               <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-emerald-500 transition-all hover:scale-105 duration-200 ease-in-out">
@@ -78,7 +90,7 @@ const DashboardPage: React.FC = () => {
                 </CardContent>
                 <CardFooter>
                   <Button
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                    className="w-full bg-gray-800 hover:bg-emerald-700 text-white"
                     onClick={() => navigate("/add-product")}
                   >
                     Add New Product
@@ -99,13 +111,13 @@ const DashboardPage: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-gray-500">
-                    Select and delete one or multiple products from your pharmacy
-                    catalog.
+                    Select and delete one or multiple products from your
+                    pharmacy catalog.
                   </p>
                 </CardContent>
                 <CardFooter>
                   <Button
-                    className="w-full bg-rose-600 hover:bg-rose-700 text-white"
+                    className="w-full bg-gray-800 hover:bg-rose-700 text-white"
                     onClick={() => navigate("/delete-product")}
                   >
                     Delete Products
@@ -132,7 +144,7 @@ const DashboardPage: React.FC = () => {
                 </CardContent>
                 <CardFooter>
                   <Button
-                    className="w-full bg-sky-600 hover:bg-sky-700 text-white"
+                    className="w-full bg-gray-800  hover:bg-sky-700 text-white"
                     onClick={() => navigate("/modify-product")}
                   >
                     Modify Products
@@ -143,12 +155,14 @@ const DashboardPage: React.FC = () => {
           </div>
 
           <div>
-            <h3 className="text-lg font-medium text-white mb-4">Branch Management</h3>
+            <h3 className="text-lg font-medium text-white mb-4">
+              Branch Management
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Add Branch Card */}
-              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-cyan-500 transition-all hover:scale-105 duration-200 ease-in-out">
+              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-emerald-500 transition-all hover:scale-105 duration-200 ease-in-out">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-cyan-400">
+                  <CardTitle className="flex items-center gap-2 text-emerald-400">
                     <Building2 className="h-5 w-5" />
                     Add Branch
                   </CardTitle>
@@ -158,12 +172,13 @@ const DashboardPage: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-gray-500">
-                    Create a new branch with location details, working hours, and contact information.
+                    Create a new branch with location details, working hours,
+                    and contact information.
                   </p>
                 </CardContent>
                 <CardFooter>
                   <Button
-                    className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
+                    className="w-full bg-gray-800 hover:bg-emerald-700 text-white"
                     onClick={() => navigate("/add-branch")}
                   >
                     Add New Branch
@@ -184,12 +199,13 @@ const DashboardPage: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-gray-500">
-                    Select and delete one or multiple branches from your pharmacy network.
+                    Select and delete one or multiple branches from your
+                    pharmacy network.
                   </p>
                 </CardContent>
                 <CardFooter>
                   <Button
-                    className="w-full bg-rose-600 hover:bg-rose-700 text-white"
+                    className="w-full bg-gray-800 hover:bg-rose-700 text-white"
                     onClick={() => navigate("/delete-branch")}
                   >
                     Delete Branches
@@ -198,9 +214,9 @@ const DashboardPage: React.FC = () => {
               </Card>
 
               {/* Modify Branch Card */}
-              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-amber-500 transition-all hover:scale-105 duration-200 ease-in-out">
+              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-sky-500 transition-all hover:scale-105 duration-200 ease-in-out">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-amber-400">
+                  <CardTitle className="flex items-center gap-2 text-sky-400">
                     <Edit className="h-5 w-5" />
                     Modify Branch
                   </CardTitle>
@@ -210,12 +226,13 @@ const DashboardPage: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-gray-500">
-                    Update branch details, location information, or working hours.
+                    Update branch details, location information, or working
+                    hours.
                   </p>
                 </CardContent>
                 <CardFooter>
                   <Button
-                    className="w-full bg-amber-600 hover:bg-amber-700 text-white"
+                    className="w-full bg-gray-800 hover:bg-sky-700 text-white"
                     onClick={() => navigate("/modify-branch")}
                   >
                     Modify Branches
