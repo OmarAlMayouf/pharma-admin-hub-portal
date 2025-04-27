@@ -2,11 +2,20 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { getProductsByPharmacyId, deleteProducts } from "@/services/productService";
+import {
+  getProductsByPharmacyId,
+  deleteProducts,
+} from "@/services/productService";
 import { Product } from "@/types/pharmacy";
 import { ArrowLeft, Search, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -67,14 +76,16 @@ const DeleteProductPage: React.FC = () => {
     setIsDeleting(true);
     try {
       await deleteProducts(selectedProducts);
-      
-      setProducts((prev) => prev.filter((product) => !selectedProducts.includes(product.id)));
-      
+
+      setProducts((prev) =>
+        prev.filter((product) => !selectedProducts.includes(product.id))
+      );
+
       toast({
         title: "Products Deleted Successfully",
         description: `${selectedProducts.length} product(s) have been removed from your inventory.`,
       });
-      
+
       setSelectedProducts([]);
     } catch (error) {
       toast({
@@ -87,15 +98,16 @@ const DeleteProductPage: React.FC = () => {
     }
   };
 
-  const filteredProducts = products
-    .filter((product) => product.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen dark-gradient py-6 px-4">
       <div className="max-w-4xl mx-auto">
         <Button
           variant="ghost"
-          className="mb-4 flex items-center gap-1 text-gray-300 hover:text-white hover:bg-white/10"
+          className="mb-4 flex items-center gap-1 bg-gray-700/50 hover:bg-gray-600/50"
           onClick={() => navigate("/dashboard")}
         >
           <ArrowLeft className="h-4 w-4" />
@@ -104,7 +116,9 @@ const DeleteProductPage: React.FC = () => {
 
         <Card className="dark-card">
           <CardHeader>
-            <CardTitle className="text-xl font-bold text-white">Delete Products</CardTitle>
+            <CardTitle className="text-xl font-bold text-white">
+              Delete Products
+            </CardTitle>
             <CardDescription className="text-gray-400">
               Select products to remove from your inventory
             </CardDescription>
@@ -118,7 +132,7 @@ const DeleteProductPage: React.FC = () => {
                     placeholder="Search products..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9 bg-gray-900/50 border-gray-700 text-gray-200 placeholder:text-gray-500"
+                    className="pl-9 bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                   />
                 </div>
                 <AlertDialog>
@@ -134,10 +148,12 @@ const DeleteProductPage: React.FC = () => {
                   </AlertDialogTrigger>
                   <AlertDialogContent className="dark-card">
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogTitle>
+                        Are you absolutely sure?
+                      </AlertDialogTitle>
                       <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete the selected product(s) 
-                        from your inventory.
+                        This action cannot be undone. This will permanently
+                        delete the selected product(s) from your inventory.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -162,17 +178,23 @@ const DeleteProductPage: React.FC = () => {
                 <div className="border border-gray-800 rounded-md overflow-hidden">
                   <div className="grid grid-cols-[40px_auto_100px_100px] gap-4 p-3 bg-gray-900/50 font-medium text-sm text-gray-300">
                     <div>
-                      <Checkbox 
-                        checked={filteredProducts.length > 0 && selectedProducts.length === filteredProducts.length} 
-                        onCheckedChange={handleSelectAll} 
+                      <Checkbox
+                        checked={
+                          filteredProducts.length > 0 &&
+                          selectedProducts.length === filteredProducts.length
+                        }
+                        onCheckedChange={handleSelectAll}
                       />
                     </div>
                     <div>Product</div>
                     <div className="text-right">Price</div>
                     <div></div>
                   </div>
-                  
-                  <div className="max-h-96 overflow-y-auto">
+
+                  <div
+                    className="max-h-96 overflow-y-auto"
+                    style={{ scrollbarColor: "#374151 #1f2937" }}
+                  >
                     {filteredProducts.map((product) => (
                       <div
                         key={product.id}
@@ -181,7 +203,9 @@ const DeleteProductPage: React.FC = () => {
                         <div>
                           <Checkbox
                             checked={selectedProducts.includes(product.id)}
-                            onCheckedChange={(checked) => handleSelectProduct(product.id, !!checked)}
+                            onCheckedChange={(checked) =>
+                              handleSelectProduct(product.id, !!checked)
+                            }
                           />
                         </div>
                         <div className="flex items-center gap-3">
@@ -191,16 +215,21 @@ const DeleteProductPage: React.FC = () => {
                               alt={product.name}
                               className="w-full h-full object-cover"
                               onError={(e) => {
-                                (e.target as HTMLImageElement).src = "https://placehold.co/100x100?text=Product";
+                                (e.target as HTMLImageElement).src =
+                                  "https://placehold.co/100x100?text=Product";
                               }}
                             />
                           </div>
                           <div>
                             <p className="font-medium">{product.name}</p>
-                            <p className="text-xs text-muted-foreground truncate max-w-sm">{product.description}</p>
+                            <p className="text-xs text-muted-foreground truncate max-w-sm">
+                              {product.description}
+                            </p>
                           </div>
                         </div>
-                        <div className="text-right font-medium">{product.price.toFixed(2)} SAR</div>
+                        <div className="text-right font-medium">
+                          {product.price.toFixed(2)} SAR
+                        </div>
                         <div className="text-right">
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
@@ -210,10 +239,13 @@ const DeleteProductPage: React.FC = () => {
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Delete this product?</AlertDialogTitle>
+                                <AlertDialogTitle>
+                                  Delete this product?
+                                </AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  This action cannot be undone. This will permanently delete "{product.name}" 
-                                  from your inventory.
+                                  This action cannot be undone. This will
+                                  permanently delete "{product.name}" from your
+                                  inventory.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>

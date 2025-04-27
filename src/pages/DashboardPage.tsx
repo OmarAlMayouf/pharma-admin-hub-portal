@@ -1,15 +1,21 @@
-
 import React from "react";
 import { useAuth } from "@/context/AuthContext";
-import { 
-  PlusCircle, 
-  Trash2, 
-  Edit, 
+import {
+  PlusCircle,
+  Trash2,
+  Edit,
   LogOut,
-  LayoutDashboard
+  LayoutDashboard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 
 const DashboardPage: React.FC = () => {
@@ -21,12 +27,16 @@ const DashboardPage: React.FC = () => {
       <header className="glass-effect">
         <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-white">Pharmaseek Admin Portal</h1>
-            <p className="text-gray-400">{user?.pharmacyName} (ID: {user?.pharmacyId})</p>
+            <h1 className="text-2xl font-bold text-white">
+              Pharmaseek Admin Portal
+            </h1>
+            <p className="text-gray-400">
+              {user?.pharmacyName} (ID: {user?.pharmacyId})
+            </p>
           </div>
-          <Button 
-            variant="outline" 
-            className="flex items-center gap-2 hover:bg-white/10"
+          <Button
+            variant="outline"
+            className="flex items-center gap-1 bg-gray-700/50 hover:bg-gray-600/50"
             onClick={() => logout()}
           >
             <LogOut className="h-4 w-4" />
@@ -34,7 +44,7 @@ const DashboardPage: React.FC = () => {
           </Button>
         </div>
       </header>
-      
+
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h2 className="text-xl font-semibold flex items-center gap-2 text-white">
@@ -43,7 +53,7 @@ const DashboardPage: React.FC = () => {
           </h2>
           <p className="text-gray-400">Manage your pharmacy products</p>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Add Product Card */}
           <Card className="dark-card border-l-4 border-l-emerald-500 hover:bg-card/80 transition-colors">
@@ -58,11 +68,12 @@ const DashboardPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-500">
-                Create a new product with details, branch availability, and alternative products.
+                Create a new product with details, branch availability, and
+                alternative products.
               </p>
             </CardContent>
             <CardFooter>
-              <Button 
+              <Button
                 className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
                 onClick={() => navigate("/add-product")}
               >
@@ -84,11 +95,12 @@ const DashboardPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-500">
-                Select and delete one or multiple products from your pharmacy catalog.
+                Select and delete one or multiple products from your pharmacy
+                catalog.
               </p>
             </CardContent>
             <CardFooter>
-              <Button 
+              <Button
                 className="w-full bg-rose-600 hover:bg-rose-700 text-white"
                 onClick={() => navigate("/delete-product")}
               >
@@ -110,11 +122,12 @@ const DashboardPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-500">
-                Change product details, branch availability, or alternative products.
+                Change product details, branch availability, or alternative
+                products.
               </p>
             </CardContent>
             <CardFooter>
-              <Button 
+              <Button
                 className="w-full bg-sky-600 hover:bg-sky-700 text-white"
                 onClick={() => navigate("/modify-product")}
               >

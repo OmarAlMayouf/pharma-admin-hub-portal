@@ -1,10 +1,16 @@
-
 import React, { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -47,7 +53,9 @@ const LoginPage: React.FC = () => {
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="pharmacyId" className="text-gray-200">Pharmacy ID</Label>
+                <Label htmlFor="pharmacyId" className="text-gray-200">
+                  Pharmacy ID
+                </Label>
                 <Input
                   id="pharmacyId"
                   placeholder="Enter your pharmacy ID"
@@ -59,7 +67,9 @@ const LoginPage: React.FC = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-200">Password</Label>
+                <Label htmlFor="password" className="text-gray-200">
+                  Password
+                </Label>
                 <div className="relative">
                   <Input
                     id="password"
