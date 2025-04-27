@@ -32,7 +32,7 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 196 85% 45%;
-
+    
     --radius: 0.5rem;
   }
 }
@@ -46,17 +46,18 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-  
-  /* Custom pharmacy admin styles */
-  .pharmacy-card {
-    @apply rounded-lg border bg-card text-card-foreground shadow-lg transition-all hover:shadow-xl;
+}
+
+@layer components {
+  .dark-card {
+    @apply bg-card/50 backdrop-blur-xl border border-white/10 shadow-lg;
   }
   
-  .step-indicator {
-    @apply flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold text-sm;
+  .dark-gradient {
+    @apply bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900;
   }
   
-  .step-indicator-inactive {
-    @apply flex items-center justify-center w-8 h-8 rounded-full bg-muted text-muted-foreground font-bold text-sm;
+  .glass-effect {
+    @apply backdrop-blur-xl bg-black/40 border border-white/10;
   }
 }

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -69,7 +68,6 @@ const DeleteProductPage: React.FC = () => {
     try {
       await deleteProducts(selectedProducts);
       
-      // Update local products list
       setProducts((prev) => prev.filter((product) => !selectedProducts.includes(product.id)));
       
       toast({
@@ -93,21 +91,21 @@ const DeleteProductPage: React.FC = () => {
     .filter((product) => product.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
-    <div className="min-h-screen bg-pharmacy-50 py-6 px-4">
+    <div className="min-h-screen dark-gradient py-6 px-4">
       <div className="max-w-4xl mx-auto">
         <Button
           variant="ghost"
-          className="mb-4 flex items-center gap-1"
+          className="mb-4 flex items-center gap-1 text-gray-300 hover:text-white hover:bg-white/10"
           onClick={() => navigate("/dashboard")}
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Dashboard
         </Button>
 
-        <Card>
+        <Card className="dark-card">
           <CardHeader>
-            <CardTitle className="text-xl font-bold">Delete Products</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-xl font-bold text-white">Delete Products</CardTitle>
+            <CardDescription className="text-gray-400">
               Select products to remove from your inventory
             </CardDescription>
           </CardHeader>
@@ -115,12 +113,12 @@ const DeleteProductPage: React.FC = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                   <Input
                     placeholder="Search products..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9"
+                    className="pl-9 bg-gray-900/50 border-gray-700 text-gray-200 placeholder:text-gray-500"
                   />
                 </div>
                 <AlertDialog>
@@ -134,7 +132,7 @@ const DeleteProductPage: React.FC = () => {
                       Delete Selected
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent>
+                  <AlertDialogContent className="dark-card">
                     <AlertDialogHeader>
                       <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                       <AlertDialogDescription>
@@ -157,12 +155,12 @@ const DeleteProductPage: React.FC = () => {
                   <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
                 </div>
               ) : filteredProducts.length === 0 ? (
-                <div className="py-8 text-center">
+                <div className="py-8 text-center text-gray-400">
                   <p>No products found matching your search.</p>
                 </div>
               ) : (
-                <div className="border rounded-md overflow-hidden">
-                  <div className="grid grid-cols-[40px_auto_100px_100px] gap-4 p-3 bg-muted font-medium text-sm">
+                <div className="border border-gray-800 rounded-md overflow-hidden">
+                  <div className="grid grid-cols-[40px_auto_100px_100px] gap-4 p-3 bg-gray-900/50 font-medium text-sm text-gray-300">
                     <div>
                       <Checkbox 
                         checked={filteredProducts.length > 0 && selectedProducts.length === filteredProducts.length} 
@@ -178,7 +176,7 @@ const DeleteProductPage: React.FC = () => {
                     {filteredProducts.map((product) => (
                       <div
                         key={product.id}
-                        className="grid grid-cols-[40px_auto_100px_100px] gap-4 items-center p-3 border-t hover:bg-muted/20"
+                        className="grid grid-cols-[40px_auto_100px_100px] gap-4 items-center p-3 border-t border-gray-800 hover:bg-gray-800/50"
                       >
                         <div>
                           <Checkbox

@@ -17,16 +17,16 @@ const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-pharmacy-50">
-      <header className="bg-white shadow">
+    <div className="min-h-screen dark-gradient">
+      <header className="glass-effect">
         <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-pharmacy-900">Pharmaseek Admin Portal</h1>
-            <p className="text-pharmacy-600">{user?.pharmacyName} (ID: {user?.pharmacyId})</p>
+            <h1 className="text-2xl font-bold text-white">Pharmaseek Admin Portal</h1>
+            <p className="text-gray-400">{user?.pharmacyName} (ID: {user?.pharmacyId})</p>
           </div>
           <Button 
             variant="outline" 
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 hover:bg-white/10"
             onClick={() => logout()}
           >
             <LogOut className="h-4 w-4" />
@@ -37,33 +37,33 @@ const DashboardPage: React.FC = () => {
       
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h2 className="text-xl font-semibold flex items-center gap-2 text-pharmacy-800">
+          <h2 className="text-xl font-semibold flex items-center gap-2 text-white">
             <LayoutDashboard className="h-5 w-5" />
             Dashboard
           </h2>
-          <p className="text-muted-foreground">Manage your pharmacy products</p>
+          <p className="text-gray-400">Manage your pharmacy products</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Add Product Card */}
-          <Card className="pharmacy-card border-l-4 border-l-green-500">
+          <Card className="dark-card border-l-4 border-l-emerald-500 hover:bg-card/80 transition-colors">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-green-700">
+              <CardTitle className="flex items-center gap-2 text-emerald-400">
                 <PlusCircle className="h-5 w-5" />
                 Add Product
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-gray-400">
                 Add a new product to your pharmacy inventory
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-500">
                 Create a new product with details, branch availability, and alternative products.
               </p>
             </CardContent>
             <CardFooter>
               <Button 
-                className="w-full bg-green-600 hover:bg-green-700"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
                 onClick={() => navigate("/add-product")}
               >
                 Add New Product
@@ -72,24 +72,24 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Delete Product Card */}
-          <Card className="pharmacy-card border-l-4 border-l-red-500">
+          <Card className="dark-card border-l-4 border-l-rose-500 hover:bg-card/80 transition-colors">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-red-700">
+              <CardTitle className="flex items-center gap-2 text-rose-400">
                 <Trash2 className="h-5 w-5" />
                 Delete Product
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-gray-400">
                 Remove products from your inventory
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-500">
                 Select and delete one or multiple products from your pharmacy catalog.
               </p>
             </CardContent>
             <CardFooter>
               <Button 
-                className="w-full bg-red-600 hover:bg-red-700"
+                className="w-full bg-rose-600 hover:bg-rose-700 text-white"
                 onClick={() => navigate("/delete-product")}
               >
                 Delete Products
@@ -98,24 +98,24 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Modify Product Card */}
-          <Card className="pharmacy-card border-l-4 border-l-blue-500">
+          <Card className="dark-card border-l-4 border-l-sky-500 hover:bg-card/80 transition-colors">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-blue-700">
+              <CardTitle className="flex items-center gap-2 text-sky-400">
                 <Edit className="h-5 w-5" />
                 Modify Product
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-gray-400">
                 Update existing product information
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-500">
                 Change product details, branch availability, or alternative products.
               </p>
             </CardContent>
             <CardFooter>
               <Button 
-                className="w-full bg-blue-600 hover:bg-blue-700" 
+                className="w-full bg-sky-600 hover:bg-sky-700 text-white"
                 onClick={() => navigate("/modify-product")}
               >
                 Modify Products
