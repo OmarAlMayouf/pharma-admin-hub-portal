@@ -11,6 +11,7 @@ import DashboardPage from "./pages/DashboardPage";
 import AddProductPage from "./pages/AddProductPage";
 import DeleteProductPage from "./pages/DeleteProductPage";
 import ModifyProductPage from "./pages/ModifyProductPage";
+import AddBranchPage from "./pages/AddBranchPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,16 +25,14 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/" element={<LoginPage />} />
-            
-            <Route 
-              path="/dashboard" 
+            <Route
+              path="/dashboard"
               element={
                 <ProtectedRoute>
                   <DashboardPage />
                 </ProtectedRoute>
               }
             />
-            
             <Route
               path="/add-product"
               element={
@@ -42,7 +41,6 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            
             <Route
               path="/delete-product"
               element={
@@ -51,7 +49,6 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            
             <Route
               path="/modify-product"
               element={
@@ -60,7 +57,14 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            
+            <Route
+              path="/add-branch"
+              element={
+                <ProtectedRoute>
+                  <AddBranchPage />
+                </ProtectedRoute>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

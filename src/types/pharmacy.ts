@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -13,7 +12,16 @@ export interface Product {
 export interface Branch {
   id: string;
   name: string;
-  address: string;
+  site_url?: string;
+  borough?: string;
+  street?: string;
+  city?: string;
+  latitude: number;
+  longitude: number;
+  rating?: number;
+  working_hours?: string;
+  about?: string;
+  location_link?: string;
   pharmacyId: string;
 }
 
@@ -34,4 +42,18 @@ export interface NewProductForm {
   imageUrl: string;
   branches: string[];
   alternatives: string[];
+}
+
+export interface NewBranchForm {
+  name: string;
+  site_url?: string;
+  borough?: string;
+  street?: string;
+  city?: string;
+  latitude: number;
+  longitude: number;
+  rating?: number;
+  working_hours?: string;
+  about?: string;
+  location_link?: string;
 }
