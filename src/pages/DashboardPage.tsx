@@ -56,7 +56,7 @@ const DashboardPage: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Add Product Card */}
-          <Card className="dark-card border-l-4 border-l-emerald-500 hover:bg-card/80 transition-colors">
+          <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-emerald-500 transition-all hover:scale-105 duration-200 ease-in-out">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-emerald-400">
                 <PlusCircle className="h-5 w-5" />
@@ -83,7 +83,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Delete Product Card */}
-          <Card className="dark-card border-l-4 border-l-rose-500 hover:bg-card/80 transition-colors">
+          <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-rose-500 transition-all hover:scale-105 duration-200 ease-in-out">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-rose-400">
                 <Trash2 className="h-5 w-5" />
@@ -110,7 +110,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Modify Product Card */}
-          <Card className="dark-card border-l-4 border-l-sky-500 hover:bg-card/80 transition-colors">
+          <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-sky-500 transition-all hover:scale-105 duration-200 ease-in-out">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sky-400">
                 <Edit className="h-5 w-5" />
