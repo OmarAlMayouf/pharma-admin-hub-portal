@@ -40,6 +40,7 @@ export interface NewProductForm {
   price: string;
   description: string;
   imageUrl: string;
+  url: string;
   branches: string[];
   alternatives: string[];
 }

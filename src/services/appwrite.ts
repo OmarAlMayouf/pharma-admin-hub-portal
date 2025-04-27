@@ -13,6 +13,7 @@ export const config = {
   reminderCollectionID: "67c1fb7400210ddc07dc",
   ticketCollectionID: "67c92eb400022f36cb17",
   product_availabilityCollectionID: "67ade8ee0020fa040538",
+  alternativeCollectionID: "3424234dd",
   wishlistCollectionID: "67fa1767002e153281c8",
   storageID: "67a8fee40010aedf2888",
 };
@@ -34,11 +35,7 @@ export const signIn = async (pharmacyId: string, password: string) => {
       [Query.equal("$id", pharmacyId)]
     );
 
-    if (pharmacy.documents.length === 0) {
-      throw new Error("Pharmacy not found");
-    }
-
-    if (password !== "admin123") {
+    if (pharmacy.documents.length === 0 || password !== "admin123") {
       throw new Error("Invalid credentials");
     }
 
@@ -73,21 +70,104 @@ export const loadPharmacyData = async (pharmacyId: string) => {
 };
 
 export const checkSession = async () => {
-    try {
-      return await account.getSession("current");
-    } catch (error) {
-      // Clear local storage if session check fails
-      localStorage.removeItem("pharmacyId");
-      throw error;
-    }
-  };
-
-  export const signOut = async () => {
-    try {
-      await account.deleteSession("current");
-    } catch (error) {
-      console.log("No active session to delete");
-    }
-    // Always clear local storage
+  try {
+    return await account.getSession("current");
+  } catch (error) {
+    // Clear local storage if session check fails
     localStorage.removeItem("pharmacyId");
-  };
+    throw error;
+  }
+};
+
+export const signOut = async () => {
+  try {
+    await account.deleteSession("current");
+  } catch (error) {
+    console.log("No active session to delete");
+  }
+  // Always clear local storage
+  localStorage.removeItem("pharmacyId");
+};
+
+export const getBranchesByPharmacyId = async (pharmacyId: string) => {
+  try {
+    const response = await databases.listDocuments(
+      config.databaseID,
+      config.branchCollectionID,
+      [Query.equal("pharmacyId", pharmacyId)]
+    );
+    return response.documents;
+  } catch (error) {
+    console.error("Error fetching branches:", error);
+    return [];
+  }
+};
+
+export const getProductsByPharmacyId = async (pharmacyId: string) => {
+  try {
+    const response = await databases.listDocuments(
+      config.databaseID,
+      config.productCollectionID,
+      [Query.equal("pharmacyId", pharmacyId), Query.limit(10000)]
+    );
+    return response.documents;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return [];
+  }
+};
+
+export const addProduct = async (
+  name: string,
+  price: number,
+  description: string,
+  imageUrl: string,
+  url: string,
+  branches: string[],
+  alternatives: string[]
+) => {
+  try {
+    const response = await databases.createDocument(
+      config.databaseID,
+      config.productCollectionID,
+      ID.unique(),
+      {
+        name: name,
+        price: price,
+        description: description,
+        image: imageUrl,
+        url: url,
+        pharmacyId: localStorage.getItem("pharmacyId"),
+      }
+    );
+    // Add branches availability to the product
+    for (const branchId of branches) {
+      await databases.createDocument(
+        config.databaseID,
+        config.product_availabilityCollectionID,
+        ID.unique(),
+        {
+          productId: response.$id,
+          branchId: branchId,
+        }
+      );
+    }
+
+    // Add alternative products to the product
+    for (const alternativeId of alternatives) {
+      await databases.createDocument(
+        config.databaseID,
+        config.alternativeCollectionID,
+        ID.unique(),
+        {
+          productId: response.$id,
+          alternativeProductId: alternativeId,
+        }
+      );
+    }
+    return response;
+  } catch (error) {
+    console.error("Error adding product:", error);
+    throw error;
+  }
+};

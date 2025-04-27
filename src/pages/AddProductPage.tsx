@@ -2,6 +2,21 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowLeft, ArrowRight, Save } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { NewProductForm } from "@/types/pharmacy";
+import { cleanStreetName } from "@/constants/datapulling";
+
+import {
+  getBranchesByPharmacyId,
+  getProductsByPharmacyId,
+  addProduct,
+} from "@/services/appwrite";
+
 import {
   Card,
   CardContent,
@@ -9,59 +24,58 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  getBranchesByPharmacyId,
-  getProductsByPharmacyId,
-  addProduct,
-} from "@/services/productService";
-import { Branch, Product, NewProductForm } from "@/types/pharmacy";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, ArrowRight, Save } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
 
 const initialFormState: NewProductForm = {
   name: "",
   price: "",
   description: "",
   imageUrl: "",
+  url: "",
   branches: [],
   alternatives: [],
 };
 
 const AddProductPage: React.FC = () => {
-  const { user } = useAuth();
+  const { pharmacy } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<NewProductForm>(initialFormState);
-  const [branches, setBranches] = useState<Branch[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [branches, setBranches] = useState([]);
+  const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (user?.pharmacyId) {
-      // Fetch branches for step 2
-      if (step === 2) {
-        setLoading(true);
-        getBranchesByPharmacyId(user.pharmacyId)
-          .then((data) => setBranches(data))
-          .finally(() => setLoading(false));
-      }
+    if (!pharmacy?.id) return;
 
-      // Fetch products for step 3
-      if (step === 3) {
+    const fetchData = async () => {
+      try {
         setLoading(true);
-        getProductsByPharmacyId(user.pharmacyId)
-          .then((data) => setProducts(data))
-          .finally(() => setLoading(false));
+        if (step === 2) {
+          const branchData = await getBranchesByPharmacyId(pharmacy.id);
+          setBranches(branchData);
+        }
+        if (step === 3) {
+          const productData = await getProductsByPharmacyId(pharmacy.id);
+          setProducts(productData);
+        }
+      } catch (error) {
+        console.error(error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load data.",
+        });
+      } finally {
+        setLoading(false);
       }
-    }
-  }, [user?.pharmacyId, step]);
+    };
+
+    fetchData();
+  }, [pharmacy?.id, step]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -70,7 +84,7 @@ const AddProductPage: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleBranchChange = (branchId: string, checked: boolean) => {
+  const handleBranchToggle = (branchId: string, checked: boolean) => {
     setFormData((prev) => ({
       ...prev,
       branches: checked
@@ -79,7 +93,7 @@ const AddProductPage: React.FC = () => {
     }));
   };
 
-  const handleAlternativeChange = (productId: string, checked: boolean) => {
+  const handleAlternativeToggle = (productId: string, checked: boolean) => {
     setFormData((prev) => ({
       ...prev,
       alternatives: checked
@@ -90,20 +104,26 @@ const AddProductPage: React.FC = () => {
 
   const nextStep = () => {
     if (step === 1) {
-      // Validate step 1
-      if (!formData.name.trim()) {
+      if (
+        !formData.name.trim() ||
+        !formData.description.trim() ||
+        !formData.price.trim() ||
+        isNaN(+formData.price)
+      ) {
         toast({
           variant: "destructive",
-          title: "Required Field Missing",
-          description: "Product name is required.",
+          title: "Validation Error",
+          description: "Please fill all required fields correctly.",
         });
         return;
       }
-      if (!formData.price.trim() || isNaN(parseFloat(formData.price))) {
+    }
+    if (step === 2) {
+      if (formData.branches.length === 0) {
         toast({
           variant: "destructive",
-          title: "Invalid Price",
-          description: "Please enter a valid price.",
+          title: "Validation Error",
+          description: "Please select at least one branch.",
         });
         return;
       }
@@ -111,162 +131,127 @@ const AddProductPage: React.FC = () => {
     setStep((prev) => prev + 1);
   };
 
-  const prevStep = () => {
-    setStep((prev) => prev - 1);
-  };
-
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const prevStep = () => setStep((prev) => prev - 1);
 
   const handleSubmit = async () => {
-    if (!user?.pharmacyId) return;
-
+    if (!pharmacy?.id) return;
     setIsSubmitting(true);
     try {
       await addProduct(
-        {
-          name: formData.name,
-          price: parseFloat(formData.price),
-          description: formData.description,
-          imageUrl: formData.imageUrl,
-          pharmacyId: user.pharmacyId,
-        },
+        formData.name,
+        parseFloat(formData.price),
+        formData.description,
+        formData.imageUrl,
+        formData.url,
         formData.branches,
         formData.alternatives
       );
-
-      toast({
-        title: "Product Added Successfully",
-        description: `${formData.name} has been added to your inventory.`,
-      });
+      toast({ title: "Success", description: "Product added successfully!" });
       navigate("/dashboard");
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Error Adding Product",
-        description:
-          "There was a problem adding the product. Please try again.",
+        title: "Error",
+        description: "Failed to add product.",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen dark-gradient py-6 px-4">
       <div className="max-w-3xl mx-auto">
         <Button
           variant="ghost"
-          className="mb-4 flex items-center gap-1 bg-gray-700/50 hover:bg-gray-600/50"
           onClick={() => navigate("/dashboard")}
+          className="mb-4 flex items-center gap-1 bg-gray-700/50 hover:bg-gray-600/50"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Dashboard
+          <ArrowLeft className="h-4 w-4" /> Back
         </Button>
 
         <Card>
           <CardHeader>
             <CardTitle className="text-xl font-bold">Add New Product</CardTitle>
             <CardDescription>
-              Complete all steps to add a new product to your pharmacy
+              Follow the steps to add a new product.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Step indicators */}
-            <div className="flex items-center justify-center mb-6">
-              <div
-                className={`step-indicator ${
-                  step === 1
-                    ? "bg-gray-700 rounded-xl py-1 px-2"
-                    : "step-indicator-inactive py-1 px-2 bg-gray-500 rounded-xl"
-                }`}
-              >
-                1
-              </div>
-              <div className="h-1 w-12 bg-gray-200">
+            {/* Step Indicator */}
+            <div className="flex justify-center gap-4 mb-6">
+              {[1, 2, 3].map((num) => (
                 <div
-                  className={`h-1 bg-primary ${step >= 2 ? "w-full" : "w-0"}`}
-                ></div>
-              </div>
-              <div
-                className={`step-indicator ${
-                  step === 2
-                    ? "bg-gray-700 rounded-xl py-1 px-2"
-                    : "step-indicator-inactive py-1 px-2 bg-gray-500 rounded-xl"
-                }`}
-              >
-                2
-              </div>
-              <div className="h-1 w-12 bg-gray-200">
-                <div
-                  className={`h-1 bg-primary ${step >= 3 ? "w-full" : "w-0"}`}
-                ></div>
-              </div>
-              <div
-                className={`step-indicator ${
-                  step === 3
-                    ? "bg-gray-700 rounded-xl py-1 px-2"
-                    : "step-indicator-inactive py-1 px-2 bg-gray-500 rounded-xl"
-                }`}
-              >
-                3
-              </div>
+                  key={num}
+                  className={`h-8 w-8 flex items-center justify-center rounded-full text-white ${
+                    step === num ? "bg-primary" : "bg-gray-600"
+                  }`}
+                >
+                  {num}
+                </div>
+              ))}
             </div>
 
+            {/* Step Content */}
             {step === 1 && (
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">Product Details</h3>
-
                 <div className="space-y-2">
                   <Label htmlFor="name">Product Name *</Label>
                   <Input
-                    id="name"
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="Enter product name"
-                    required
                     className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="price">Price (in SAR) *</Label>
+                  <Label htmlFor="price">Price (SAR) *</Label>
                   <Input
-                    id="price"
                     name="price"
+                    type="number"
                     value={formData.price}
                     onChange={handleInputChange}
                     placeholder="Enter price"
-                    type="number"
-                    step="0.01"
-                    required
                     className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description">Description *</Label>
                   <Textarea
-                    id="description"
                     name="description"
                     value={formData.description}
                     onChange={handleInputChange}
-                    placeholder="Enter product description"
                     rows={3}
-                    className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
+                    placeholder="Enter description"
+                    style={{ scrollbarColor: "#374151 #1f2937" }}
+                    className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500 resize-none"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="imageUrl">Image URL</Label>
                   <Input
-                    id="imageUrl"
                     name="imageUrl"
                     value={formData.imageUrl}
                     onChange={handleInputChange}
-                    placeholder="Enter image URL"
+                    placeholder="Optional image link"
+                    className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="url">Product URL</Label>
+                  <Input
+                    name="url"
+                    value={formData.url}
+                    onChange={handleInputChange}
+                    placeholder="Optional product link"
                     className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                   />
                 </div>
@@ -275,19 +260,18 @@ const AddProductPage: React.FC = () => {
                   <Label htmlFor="pharmacyId">Pharmacy ID</Label>
                   <Input
                     id="pharmacyId"
-                    value={user?.pharmacyId || ""}
+                    value={pharmacy?.id || ""}
                     disabled
                     className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                   />
                 </div>
 
-                <div className="pt-4 text-right">
+                <div className="flex justify-end pt-4">
                   <Button
                     onClick={nextStep}
-                    className="flex items-center gap-1"
+                    className="flex items-center gap-2"
                   >
-                    Next
-                    <ArrowRight className="h-4 w-4" />
+                    Next <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -295,64 +279,47 @@ const AddProductPage: React.FC = () => {
 
             {step === 2 && (
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">Branch Availability</h3>
+                <h3 className="text-lg font-semibold">Branch Availability</h3>
 
                 {loading ? (
-                  <div className="flex justify-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-                  </div>
-                ) : branches.length === 0 ? (
-                  <div className="py-8 text-center">
-                    <p>No branches found for your pharmacy.</p>
-                  </div>
+                  <p className="text-center py-8">Loading branches...</p>
                 ) : (
                   <div
-                    className=" max-h-96 overflow-y-auto border border-gray-800 rounded-md"
+                    className="max-h-96 overflow-y-auto"
                     style={{ scrollbarColor: "#374151 #1f2937" }}
                   >
-                    {branches.map((branch) => (
-                      <div
-                        key={branch.id}
-                        className="flex items-center space-x-2 p-3 border-t border-gray-800 hover:bg-gray-800/50"
-                      >
-                        <Checkbox
-                          id={`branch-${branch.id}`}
-                          checked={formData.branches.includes(branch.id)}
-                          onCheckedChange={(checked) =>
-                            handleBranchChange(branch.id, !!checked)
-                          }
-                        />
-                        <div className="flex flex-col">
-                          <Label
-                            htmlFor={`branch-${branch.id}`}
-                            className="font-medium cursor-pointer"
-                          >
-                            {branch.name}
-                          </Label>
-                          <span className="text-xs text-muted-foreground">
-                            {branch.address}
-                          </span>
+                    {branches.length === 0 ? (
+                      <p>No branches found.</p>
+                    ) : (
+                      branches.map((branch) => (
+                        <div
+                          key={branch?.$id}
+                          className="flex items-center space-x-2 p-3 border-t border-gray-800 hover:bg-gray-800/50"
+                        >
+                          <Checkbox
+                            checked={formData.branches.includes(branch?.$id)}
+                            onCheckedChange={(checked) =>
+                              handleBranchToggle(branch?.$id, !!checked)
+                            }
+                          />
+                          <div>
+                            <p className="font-medium">{branch.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {cleanStreetName(branch.street)}, {branch.city}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 )}
 
-                <div className="pt-4 flex justify-between">
-                  <Button
-                    variant="outline"
-                    onClick={prevStep}
-                    className="flex items-center gap-1"
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                    Previous
+                <div className="flex justify-between pt-4">
+                  <Button variant="outline" onClick={prevStep}>
+                    <ArrowLeft className="h-4 w-4" /> Previous
                   </Button>
-                  <Button
-                    onClick={nextStep}
-                    className="flex items-center gap-1"
-                  >
-                    Next
-                    <ArrowRight className="h-4 w-4" />
+                  <Button onClick={nextStep}>
+                    Next <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -360,69 +327,47 @@ const AddProductPage: React.FC = () => {
 
             {step === 3 && (
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">
-                  Alternative Products (Optional)
-                </h3>
+                <h3 className="text-lg font-semibold">Alternative Products (Optional)</h3>
 
-                <div className="space-y-2">
-                  <Label htmlFor="searchAlternatives">Search Products</Label>
-                  <Input
-                    id="searchAlternatives"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search for products..."
-                    className="mb-4 bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
-                  />
-                </div>
+                <Input
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="bg-gray-900/50 border-gray-700 mb-4"
+                />
 
                 {loading ? (
-                  <div className="flex justify-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-                  </div>
-                ) : filteredProducts.length === 0 ? (
-                  <div className="py-8 text-center">
-                    <p>No products found matching your search.</p>
-                  </div>
+                  <p className="text-center py-8">Loading products...</p>
                 ) : (
                   <div
-                    className="max-h-64 overflow-y-auto border border-gray-800 rounded-md"
+                    className="max-h-96 overflow-y-auto"
                     style={{ scrollbarColor: "#374151 #1f2937" }}
                   >
                     {filteredProducts.map((product) => (
                       <div
-                        key={product.id}
-                        className="flex items-center gap-4 space-x-2 p-3 border-t border-gray-800 hover:bg-gray-800/50"
+                        key={product?.$id}
+                        className="flex items-center space-x-2 p-3 border-t border-gray-800 hover:bg-gray-800/50"
                       >
                         <Checkbox
-                          id={`product-${product.id}`}
-                          checked={formData.alternatives.includes(product.id)}
+                          checked={formData.alternatives.includes(product?.$id)}
                           onCheckedChange={(checked) =>
-                            handleAlternativeChange(product.id, !!checked)
+                            handleAlternativeToggle(product?.$id, !!checked)
                           }
-                          className="mt-1"
                         />
-                        <div className="flex flex-1 space-x-2">
-                          <div className="w-10 h-10 rounded-md overflow-hidden">
-                            <img
-                              src={product.imageUrl}
-                              alt={product.name}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src =
-                                  "https://placehold.co/100x100?text=Product";
-                              }}
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <Label
-                              htmlFor={`product-${product.id}`}
-                              className="font-medium cursor-pointer"
-                            >
-                              {product.name}
-                            </Label>
-                            <span className="text-xs text-muted-foreground">
-                              ${product.price.toFixed(2)}
-                            </span>
+                        <div className="flex items-center space-x-2">
+                          <img
+                            src={
+                              product.image ||
+                              "https://placehold.co/100x100?text=Product"
+                            }
+                            alt={product.name}
+                            className="w-10 h-10 rounded-md object-cover"
+                          />
+                          <div>
+                            <p className="font-medium">{product.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              SAR {product.price.toFixed(2)}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -430,30 +375,20 @@ const AddProductPage: React.FC = () => {
                   </div>
                 )}
 
-                <div className="pt-4 flex justify-between">
-                  <Button
-                    variant="outline"
-                    onClick={prevStep}
-                    className="flex items-center gap-1"
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                    Previous
+                <div className="flex justify-between pt-4">
+                  <Button variant="outline" onClick={prevStep}>
+                    <ArrowLeft className="h-4 w-4" /> Previous
                   </Button>
-                  <Button
-                    onClick={handleSubmit}
-                    className="flex items-center gap-1"
-                    disabled={isSubmitting}
-                  >
+                  <Button onClick={handleSubmit} disabled={isSubmitting}>
                     {isSubmitting ? (
-                      <>
-                        <span className="animate-spin rounded-full h-4 w-4 border-2 border-b-transparent" />
+                      <div className="flex items-center gap-2">
+                        <span className="h-4 w-4 animate-spin border-2 border-t-transparent rounded-full" />
                         Saving...
-                      </>
+                      </div>
                     ) : (
-                      <>
-                        <Save className="h-4 w-4" />
-                        Save Product
-                      </>
+                      <div className="flex items-center gap-2">
+                        <Save className="h-4 w-4" /> Save Product
+                      </div>
                     )}
                   </Button>
                 </div>
