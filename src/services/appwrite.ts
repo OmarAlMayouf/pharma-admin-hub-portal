@@ -477,4 +477,29 @@ export const modifyBranch = async (
   rating: number,
   about: string,
   branchId: string
-) => {};
+) => {
+  try {
+    const response = await databases.updateDocument(
+      config.databaseID,
+      config.branchCollectionID,
+      branchId,
+      {
+        name: name,
+        site: website_url,
+        borough: borough,
+        street: street,
+        city: city,
+        latitude: latitude,
+        longitude: longitude,
+        rating: rating,
+        working_hours: working_hours,
+        about: about,
+        location_link: location_link,
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error("Error modifying branch:", error);
+    throw error;
+  }
+};

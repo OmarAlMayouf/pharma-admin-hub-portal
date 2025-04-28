@@ -114,22 +114,22 @@ const ModifyBranchPage: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      // await modifyBranch(
-      //   formData.name,
-      //   formData.latitude,
-      //   formData.longitude,
-      //   formData.street,
-      //   formData.borough,
-      //   formData.city,
-      //   formData.site_url || null,
-      //   formData.location_link || null,
-      //   formData.working_hours,
-      //   formData.rating,
-      //   formData.about,
-      //   branchID
-      // );
+      await modifyBranch(
+        formData.name,
+        parseFloat(formData.latitude.toString()),
+        parseFloat(formData.longitude.toString()),
+        formData.street,
+        formData.borough,
+        formData.city,
+        formData.site_url || null,
+        formData.location_link || null,
+        formData.working_hours,
+        formData.rating,
+        formData.about,
+        branchID
+      );
       toast({ title: "Success", description: "Branch modified successfully!" });
-      //navigate("/dashboard");
+      navigate("/dashboard");
     } catch (error) {
       toast({
         variant: "destructive",
@@ -149,7 +149,7 @@ const ModifyBranchPage: React.FC = () => {
     setBranchID(branch?.$id);
     setFormData({
       name: branch.name || "",
-      site_url: branch.site_url || "",
+      site_url: branch.site || "",
       borough: branch.borough || "",
       street: cleanStreetName(branch.street) || "",
       city: branch.city || "",

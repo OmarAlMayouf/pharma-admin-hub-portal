@@ -91,8 +91,8 @@ const AddBranchPage: React.FC = () => {
     try {
       await addBranch(
         formData.name,
-        formData.latitude,
-        formData.longitude,
+        parseFloat(formData.latitude.toString()),
+        parseFloat(formData.longitude.toString()),
         formData.street,
         formData.borough,
         formData.city,
