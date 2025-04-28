@@ -125,10 +125,6 @@ const LoginPage: React.FC = () => {
             </CardFooter>
           </form>
         </Card>
-        <div className="mt-4 text-center text-sm text-gray-400">
-          <p>Demo Credentials:</p>
-          <p>Pharmacy ID: PHARM123, Password: admin123</p>
-        </div>
       </div>
     </div>
   );

@@ -427,3 +427,39 @@ export const addBranch = async (
     throw error;
   }
 };
+
+export const deleteBranches = async (branchIds: string[]) => {
+  try {
+    // Run all deletions in parallel
+    await Promise.all(
+      branchIds.map(async (branchId) => {
+        // 1. Delete all availabilities
+        const availabilities = await databases.listDocuments(
+          config.databaseID,
+          config.product_availabilityCollectionID,
+          [Query.equal("branchId", branchId)]
+        );
+
+        await Promise.all(
+          availabilities.documents.map((availability) =>
+            databases.deleteDocument(
+              config.databaseID,
+              config.product_availabilityCollectionID,
+              availability.$id
+            )
+          )
+        );
+
+        // 2. Delete the branch itself
+        await databases.deleteDocument(
+          config.databaseID,
+          config.branchCollectionID,
+          branchId
+        );
+      })
+    );
+  } catch (error) {
+    console.error("Error deleting branches:", error);
+    throw error;
+  }
+};

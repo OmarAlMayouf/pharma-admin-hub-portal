@@ -257,16 +257,6 @@ const AddProductPage: React.FC = () => {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="pharmacyId">Pharmacy ID</Label>
-                  <Input
-                    id="pharmacyId"
-                    value={pharmacy?.id || ""}
-                    disabled
-                    className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
-                  />
-                </div>
-
                 <div className="flex justify-end pt-4">
                   <Button
                     onClick={nextStep}

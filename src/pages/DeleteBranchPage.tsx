@@ -2,6 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowLeft, Search, Trash2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { deleteBranches, getBranchesByPharmacyId } from "@/services/appwrite";
 import {
   Card,
   CardContent,
@@ -9,11 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { ArrowLeft, Search, Trash2 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,30 +25,39 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { getBranchesByPharmacyId } from "@/services/productService"; // Make sure this service exists
 
 const DeleteBranchPage: React.FC = () => {
-  const { user } = useAuth();
+  const { pharmacy } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [branches, setBranches] = useState<any[]>([]); // Replace 'any' with a proper type for branches
+  const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedBranches, setSelectedBranches] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // useEffect(() => {
-  //   if (user?.pharmacyId) {
-  //     setLoading(true);
-  //     getBranches(user.pharmacyId) // This function should fetch the branches for the logged-in pharmacy
-  //       .then((fetchedBranches) => {
-  //         setBranches(fetchedBranches);
-  //       })
-  //       .finally(() => {
-  //         setLoading(false);
-  //       });
-  //   }
-  // }, [user?.pharmacyId]);
+  useEffect(() => {
+    if (!pharmacy?.id) return;
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const branchData = await getBranchesByPharmacyId(pharmacy.id);
+        setBranches(branchData);
+      } catch (error) {
+        console.error(error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load data.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [pharmacy?.id]);
 
   const handleSelectBranch = (branchId: string, checked: boolean) => {
     if (checked) {
@@ -60,7 +69,7 @@ const DeleteBranchPage: React.FC = () => {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedBranches(branches.map((branch) => branch.id));
+      setSelectedBranches(filteredBranches.map((branch) => branch?.$id));
     } else {
       setSelectedBranches([]);
     }
@@ -71,15 +80,15 @@ const DeleteBranchPage: React.FC = () => {
 
     setIsDeleting(true);
     try {
-      //await deleteBranch(selectedBranches); // Make sure this function deletes the branches
+      await deleteBranches(selectedBranches);
 
       setBranches((prev) =>
-        prev.filter((branch) => !selectedBranches.includes(branch.id))
+        prev.filter((branch) => !selectedBranches.includes(branch?.$id))
       );
 
       toast({
         title: "Branches Deleted Successfully",
-        description: `${selectedBranches.length} branch(es) have been removed.`,
+        description: `${selectedBranches.length} branch(s) have been removed from your system.`,
       });
 
       setSelectedBranches([]);
@@ -116,7 +125,7 @@ const DeleteBranchPage: React.FC = () => {
               Delete Branches
             </CardTitle>
             <CardDescription className="text-gray-400">
-              Select branches to remove from your pharmacy
+              Select branches to remove from your system
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -149,7 +158,7 @@ const DeleteBranchPage: React.FC = () => {
                       </AlertDialogTitle>
                       <AlertDialogDescription>
                         This action cannot be undone. This will permanently
-                        delete the selected branch(es).
+                        delete the selected branch(s) from your system.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -172,7 +181,7 @@ const DeleteBranchPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="border border-gray-800 rounded-md overflow-hidden">
-                  <div className="grid grid-cols-[40px_auto] gap-4 p-3 bg-gray-900/50 font-medium text-sm text-gray-300">
+                  <div className="grid grid-cols-[40px_auto_100px] gap-4 p-3 bg-gray-900/50 font-medium text-sm text-gray-300">
                     <div>
                       <Checkbox
                         checked={
@@ -183,6 +192,7 @@ const DeleteBranchPage: React.FC = () => {
                       />
                     </div>
                     <div>Branch</div>
+                    <div></div>
                   </div>
 
                   <div
@@ -191,23 +201,20 @@ const DeleteBranchPage: React.FC = () => {
                   >
                     {filteredBranches.map((branch) => (
                       <div
-                        key={branch.id}
-                        className="grid grid-cols-[40px_auto] gap-4 items-center p-3 border-t border-gray-800 hover:bg-gray-800/50"
+                        key={branch?.$id}
+                        className="grid grid-cols-[40px_auto_100px] gap-4 items-center p-3 border-t border-gray-800 hover:bg-gray-800/50"
                       >
                         <div>
                           <Checkbox
-                            checked={selectedBranches.includes(branch.id)}
+                            checked={selectedBranches.includes(branch?.$id)}
                             onCheckedChange={(checked) =>
-                              handleSelectBranch(branch.id, !!checked)
+                              handleSelectBranch(branch?.$id, !!checked)
                             }
                           />
                         </div>
                         <div className="flex items-center gap-3">
                           <div>
                             <p className="font-medium">{branch.name}</p>
-                            <p className="text-xs text-muted-foreground truncate max-w-sm">
-                              {branch.address}
-                            </p>
                           </div>
                         </div>
                         <div className="text-right">
@@ -225,14 +232,14 @@ const DeleteBranchPage: React.FC = () => {
                                 <AlertDialogDescription>
                                   This action cannot be undone. This will
                                   permanently delete "{branch.name}" from your
-                                  pharmacy.
+                                  system.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => {
-                                    setSelectedBranches([branch.id]);
+                                    setSelectedBranches([branch?.$id]);
                                     handleDeleteBranches();
                                   }}
                                 >
