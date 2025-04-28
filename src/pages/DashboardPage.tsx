@@ -1,14 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import {
-  PlusCircle,
-  Trash2,
-  Edit,
-  LogOut,
-  LayoutDashboard,
-  Building2,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Navigate, useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
+import { getBranchesByPharmacyId } from "@/services/appwrite";
+import { Input } from "@/components/ui/input";
+import { cleanStreetName, isPharmacyOpen } from "@/constants/datapulling";
 import {
   Card,
   CardContent,
@@ -17,17 +14,99 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Navigate, useNavigate } from "react-router-dom";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
+import {
+  PlusCircle,
+  Trash2,
+  Edit,
+  LogOut,
+  LayoutDashboard,
+  Building2,
+  Search,
+} from "lucide-react";
 
 const DashboardPage: React.FC = () => {
   const { pharmacy, logout, isLoading } = useAuth();
   const navigate = useNavigate();
+  const [branches, setBranches] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  const filteredBranches = branches.filter((branch) =>
+    branch.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  if (isLoading) {
-    return <div className="min-h-screen dark-gradient flex items-center justify-center text-white">Loading...</div>;
+  useEffect(() => {
+    if (!pharmacy?.id) return;
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const branchData = await getBranchesByPharmacyId(pharmacy.id);
+        setBranches(branchData);
+      } catch (error) {
+        console.error(error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load data.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [pharmacy?.id]);
+
+  const allProducts = [
+    { name: "Product A", searches: 120 },
+    { name: "Product B", searches: 95 },
+    { name: "Product C", searches: 210 },
+    { name: "Product D", searches: 35 },
+    { name: "Product E", searches: 75 },
+    { name: "Product F", searches: 180 },
+    { name: "Product G", searches: 60 },
+  ];
+
+  const topN = 7;
+
+  const topProducts = allProducts.slice(0, topN);
+
+  function centerHighest(products) {
+    const sorted = [...products].sort((a, b) => b.searches - a.searches);
+    const middle = [];
+    const left = [];
+    const right = [];
+
+    sorted.forEach((product, index) => {
+      if (index % 2 === 0) {
+        right.push(product);
+      } else {
+        left.unshift(product);
+      }
+    });
+
+    return [...left, ...right];
   }
 
-  if(!pharmacy) {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen dark-gradient flex items-center justify-center text-white">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!pharmacy) {
     return <Navigate to="/" />;
   }
 
@@ -239,6 +318,109 @@ const DashboardPage: React.FC = () => {
                   </Button>
                 </CardFooter>
               </Card>
+            </div>
+          </div>
+        </div>
+        <div className="mt-4">
+          <h3 className="text-lg font-medium text-white mb-4">
+            Most Searched Products
+          </h3>
+          <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart
+                data={centerHighest(topProducts)}
+                margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
+                barCategoryGap="15%"
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fill: "#9CA3AF", fontSize: 12 }}
+                  axisLine={{ stroke: "#4B5563" }}
+                  tickLine={{ stroke: "#4B5563" }}
+                />
+                <YAxis
+                  tick={{ fill: "#9CA3AF", fontSize: 12 }}
+                  axisLine={{ stroke: "#4B5563" }}
+                  tickLine={{ stroke: "#4B5563" }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#1F2937",
+                    borderColor: "#374151",
+                    borderRadius: 8,
+                  }}
+                  itemStyle={{ color: "#F9FAFB" }}
+                  cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
+                />
+                <Bar
+                  dataKey="searches"
+                  fill="#f43f5e"
+                  radius={[10, 10, 0, 0]}
+                  stroke="#f43f5e"
+                  barSize={105}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        <div className="mt-4">
+          <h3 className="text-lg font-medium text-white mb-4">
+            Branches Status
+          </h3>
+          <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search for a branch..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9 bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
+                />
+              </div>
+
+              {loading ? (
+                <div className="flex justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                </div>
+              ) : filteredBranches.length === 0 ? (
+                <div className="py-8 text-center text-gray-400">
+                  <p>No branches found matching your search.</p>
+                </div>
+              ) : (
+                <div
+                  className=" max-h-96 overflow-y-auto border border-gray-800 rounded-md"
+                  style={{ scrollbarColor: "#374151 #1f2937" }}
+                >
+                  {filteredBranches.map((branch) => (
+                    <div
+                      key={branch.id}
+                      className="flex items-center p-3 border-t border-gray-800 hover:bg-gray-800/50"
+                      onClick={() => {}}
+                    >
+                      <div className="ml-3 flex-1">
+                        <div className="font-medium">{branch.name}</div>
+                        <div className="font-normal text-sm text-gray-500">
+                          {branch.borough} - {cleanStreetName(branch.street)} -{" "}
+                          {branch.city}
+                        </div>
+                      </div>
+                      <span
+                        className={`ml-4 text-sm font-semibold ${
+                          isPharmacyOpen(branch.working_hours) === "Opened"
+                            ? "text-emerald-400"
+                            : "text-rose-400"
+                        }`}
+                      >
+                        {isPharmacyOpen(branch.working_hours) === "Opened"
+                          ? "Opened"
+                          : "Closed"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
