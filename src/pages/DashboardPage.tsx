@@ -34,6 +34,9 @@ import {
   LayoutDashboard,
   Building2,
   Search,
+  Paperclip,
+  FileCode,
+  FilePlus2,
 } from "lucide-react";
 
 const DashboardPage: React.FC = () => {
@@ -172,10 +175,102 @@ const DashboardPage: React.FC = () => {
         <div className="space-y-4">
           <div>
             <h3 className="text-lg font-medium text-white mb-4">
+              Inventory Overview
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Total Products Card */}
+              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-yellow-500 transition-all hover:scale-105 duration-200 ease-in-out">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-yellow-400">
+                    <LayoutDashboard className="h-5 w-5" />
+                    Total Products
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Number of products currently in your inventory
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold text-white">
+                    {productloading ? "Loading..." : productsLength}
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    className="w-full bg-gray-800 hover:bg-yellow-600 text-white cursor-default"
+                    disabled
+                  >
+                    {productloading
+                      ? "Loading..."
+                      : `${productsLength} Products`}
+                  </Button>
+                </CardFooter>
+              </Card>
+
+              {/* Total Branches Card */}
+              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-purple-500 transition-all hover:scale-105 duration-200 ease-in-out">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-purple-400">
+                    <LayoutDashboard className="h-5 w-5" />
+                    Total Branches
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Number of branches in your pharmacy network
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold text-white">
+                    {branchloading ? "Loading..." : branchesLength}
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    className="w-full bg-gray-800 hover:bg-purple-600 text-white cursor-default"
+                    disabled
+                  >
+                    {branchloading
+                      ? "Loading..."
+                      : `${branchesLength} Branches`}
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-white mb-4">
               Product Management
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Product management cards */}
+
+              {/* Bulk Add Product Card */}
+              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-violet-500 transition-all hover:scale-105 duration-200 ease-in-out">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-violet-400">
+                    <FilePlus2 className="h-5 w-5" />
+                    Bulk Add Product
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Upload a CSV file to add multiple products at once
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-500">
+                    Upload a CSV file containing product details to add them in
+                    bulk to your pharmacy inventory.
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    className="w-full bg-gray-800 hover:bg-violet-700 text-white"
+                    onClick={() => {}}
+                  >
+                    Bulk Add Products
+                  </Button>
+                </CardFooter>
+              </Card>
+
+              {/* Add Product Card */}
               <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-emerald-500 transition-all hover:scale-105 duration-200 ease-in-out">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-emerald-400">
@@ -228,34 +323,34 @@ const DashboardPage: React.FC = () => {
                   </Button>
                 </CardFooter>
               </Card>
-
-              {/* Modify Product Card */}
-              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-sky-500 transition-all hover:scale-105 duration-200 ease-in-out">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-sky-400">
-                    <Edit className="h-5 w-5" />
-                    Modify Product
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Update existing product information
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-500">
-                    Change product details, branch availability, or alternative
-                    products.
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    className="w-full bg-gray-800  hover:bg-sky-700 text-white"
-                    onClick={() => navigate("/modify-product")}
-                  >
-                    Modify Products
-                  </Button>
-                </CardFooter>
-              </Card>
             </div>
+
+            {/* Modify Product Card */}
+            <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-sky-500 transition-all hover:scale-105 duration-200 ease-in-out">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-sky-400">
+                  <Edit className="h-5 w-5" />
+                  Modify Product
+                </CardTitle>
+                <CardDescription className="text-gray-400">
+                  Update existing product information
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-500">
+                  Change product details, branch availability, or alternative
+                  products.
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  className="w-full bg-gray-800  hover:bg-sky-700 text-white"
+                  onClick={() => navigate("/modify-product")}
+                >
+                  Modify Products
+                </Button>
+              </CardFooter>
+            </Card>
           </div>
 
           <div>
@@ -346,165 +441,110 @@ const DashboardPage: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="mt-4">
-          <h3 className="text-lg font-medium text-white mb-4">
-            Inventory Overview
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Total Products Card */}
-            <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-yellow-500 transition-all hover:scale-105 duration-200 ease-in-out">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-yellow-400">
-                  <LayoutDashboard className="h-5 w-5" />
-                  Total Products
-                </CardTitle>
-                <CardDescription className="text-gray-400">
-                  Number of products currently in your inventory
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold text-white">
-                  {productloading ? "Loading..." : productsLength}
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Button
-                  className="w-full bg-gray-800 hover:bg-yellow-600 text-white cursor-default"
-                  disabled
-                >
-                  {productloading ? "Loading..." : `${productsLength} Products`}
-                </Button>
-              </CardFooter>
-            </Card>
 
-            {/* Total Branches Card */}
-            <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-purple-500 transition-all hover:scale-105 duration-200 ease-in-out">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-purple-400">
-                  <LayoutDashboard className="h-5 w-5" />
-                  Total Branches
-                </CardTitle>
-                <CardDescription className="text-gray-400">
-                  Number of branches in your pharmacy network
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold text-white">
-                  {branchloading ? "Loading..." : branchesLength}
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Button
-                  className="w-full bg-gray-800 hover:bg-purple-600 text-white cursor-default"
-                  disabled
+        <div className="space-y-4 mt-4">
+          <div>
+            <h3 className="text-lg font-medium text-white mb-4">
+              Most Searched Products
+            </h3>
+            <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart
+                  data={centerHighest(topProducts)}
+                  margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
+                  barCategoryGap="15%"
                 >
-                  {branchloading ? "Loading..." : `${branchesLength} Branches`}
-                </Button>
-              </CardFooter>
-            </Card>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fill: "#9CA3AF", fontSize: 12 }}
+                    axisLine={{ stroke: "#4B5563" }}
+                    tickLine={{ stroke: "#4B5563" }}
+                  />
+                  <YAxis
+                    tick={{ fill: "#9CA3AF", fontSize: 12 }}
+                    axisLine={{ stroke: "#4B5563" }}
+                    tickLine={{ stroke: "#4B5563" }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#1F2937",
+                      borderColor: "#374151",
+                      borderRadius: 8,
+                    }}
+                    itemStyle={{ color: "#F9FAFB" }}
+                    cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
+                  />
+                  <Bar
+                    dataKey="searches"
+                    fill="#f43f5e"
+                    radius={[10, 10, 0, 0]}
+                    stroke="#f43f5e"
+                    barSize={105}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        </div>
 
-        <div className="mt-4">
-          <h3 className="text-lg font-medium text-white mb-4">
-            Most Searched Products
-          </h3>
-          <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart
-                data={centerHighest(topProducts)}
-                margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
-                barCategoryGap="15%"
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis
-                  dataKey="name"
-                  tick={{ fill: "#9CA3AF", fontSize: 12 }}
-                  axisLine={{ stroke: "#4B5563" }}
-                  tickLine={{ stroke: "#4B5563" }}
-                />
-                <YAxis
-                  tick={{ fill: "#9CA3AF", fontSize: 12 }}
-                  axisLine={{ stroke: "#4B5563" }}
-                  tickLine={{ stroke: "#4B5563" }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#1F2937",
-                    borderColor: "#374151",
-                    borderRadius: 8,
-                  }}
-                  itemStyle={{ color: "#F9FAFB" }}
-                  cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
-                />
-                <Bar
-                  dataKey="searches"
-                  fill="#f43f5e"
-                  radius={[10, 10, 0, 0]}
-                  stroke="#f43f5e"
-                  barSize={105}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-        <div className="mt-4">
-          <h3 className="text-lg font-medium text-white mb-4">
-            Branches Status
-          </h3>
-          <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
-            <div className="space-y-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search for a branch..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9 bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
-                />
-              </div>
+          <div>
+            <h3 className="text-lg font-medium text-white mb-4">
+              Branches Status
+            </h3>
+            <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
+              <div className="space-y-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search for a branch..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9 bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
+                  />
+                </div>
 
-              {branchloading ? (
-                <div className="flex justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-                </div>
-              ) : filteredBranches.length === 0 ? (
-                <div className="py-8 text-center text-gray-400">
-                  <p>No branches found matching your search.</p>
-                </div>
-              ) : (
-                <div
-                  className=" max-h-96 overflow-y-auto border border-gray-800 rounded-md"
-                  style={{ scrollbarColor: "#374151 #1f2937" }}
-                >
-                  {filteredBranches.map((branch) => (
-                    <div
-                      key={branch.id}
-                      className="flex items-center p-3 border-t border-gray-800 hover:bg-gray-800/50"
-                      onClick={() => {}}
-                    >
-                      <div className="ml-3 flex-1">
-                        <div className="font-medium">{branch.name}</div>
-                        <div className="font-normal text-sm text-gray-500">
-                          {branch.borough} - {cleanStreetName(branch.street)} -{" "}
-                          {branch.city}
-                        </div>
-                      </div>
-                      <span
-                        className={`ml-4 text-sm font-semibold ${
-                          isPharmacyOpen(branch.working_hours) === "Opened"
-                            ? "text-emerald-400"
-                            : "text-rose-400"
-                        }`}
+                {branchloading ? (
+                  <div className="flex justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                  </div>
+                ) : filteredBranches.length === 0 ? (
+                  <div className="py-8 text-center text-gray-400">
+                    <p>No branches found matching your search.</p>
+                  </div>
+                ) : (
+                  <div
+                    className=" max-h-96 overflow-y-auto border border-gray-800 rounded-md"
+                    style={{ scrollbarColor: "#374151 #1f2937" }}
+                  >
+                    {filteredBranches.map((branch) => (
+                      <div
+                        key={branch.id}
+                        className="flex items-center p-3 border-t border-gray-800 hover:bg-gray-800/50"
+                        onClick={() => {}}
                       >
-                        {isPharmacyOpen(branch.working_hours) === "Opened"
-                          ? "Opened"
-                          : "Closed"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
+                        <div className="ml-3 flex-1">
+                          <div className="font-medium">{branch.name}</div>
+                          <div className="font-normal text-sm text-gray-500">
+                            {branch.borough} - {cleanStreetName(branch.street)}{" "}
+                            - {branch.city}
+                          </div>
+                        </div>
+                        <span
+                          className={`ml-4 text-sm font-semibold ${
+                            isPharmacyOpen(branch.working_hours) === "Opened"
+                              ? "text-emerald-400"
+                              : "text-rose-400"
+                          }`}
+                        >
+                          {isPharmacyOpen(branch.working_hours) === "Opened"
+                            ? "Opened"
+                            : "Closed"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
