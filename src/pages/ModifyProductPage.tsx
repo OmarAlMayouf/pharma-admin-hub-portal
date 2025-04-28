@@ -209,10 +209,11 @@ const ModifyBranchPage: React.FC = () => {
       <div className="max-w-3xl mx-auto">
         <Button
           variant="ghost"
-          onClick={() => navigate("/dashboard")}
           className="mb-4 flex items-center gap-1 bg-gray-700/50 hover:bg-gray-600/50"
+          onClick={() => navigate("/dashboard")}
         >
-          <ArrowLeft className="h-4 w-4" /> Back
+          <ArrowLeft className="h-4 w-4" />
+          Back to Dashboard
         </Button>
 
         <Card>

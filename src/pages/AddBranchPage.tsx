@@ -1,100 +1,111 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Building2 } from "lucide-react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ArrowLeft, Building2, Save } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { NewBranchForm } from "@/types/pharmacy";
-const branchFormSchema = z.object({
-  name: z.string().min(1, "Branch name is required"),
-  site_url: z
-    .string()
-    .optional()
-    .refine((val) => val === "" || z.string().url().safeParse(val).success, {
-      message: "Invalid URL format",
-    }),
-  borough: z.string().optional(),
-  street: z.string().optional(),
-  city: z.string().optional(),
-  latitude: z.number({
-    required_error: "Latitude is required",
-    invalid_type_error: "Latitude must be a number",
-  }),
-  longitude: z.number({
-    required_error: "Longitude is required",
-    invalid_type_error: "Longitude must be a number",
-  }),
-  rating: z.number().min(0).max(5).optional(),
-  working_hours: z.string().optional(),
-  about: z.string().optional(),
-  location_link: z
-    .string()
-    .optional()
-    .refine((val) => val === "" || z.string().url().safeParse(val).success, {
-      message: "Invalid URL format",
-    }),
-});
+import { addBranch } from "@/services/appwrite";
+import { Label } from "@/components/ui/label";
 
-
+const initialFormState: NewBranchForm = {
+  name: "",
+  site_url: "",
+  borough: "",
+  street: "",
+  city: "",
+  latitude: undefined,
+  longitude: undefined,
+  rating: undefined,
+  working_hours: "",
+  about: "",
+  location_link: "",
+};
 
 const AddBranchPage: React.FC = () => {
-  const { user } = useAuth();
+  const { pharmacy } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const form = useForm<NewBranchForm>({
-    resolver: zodResolver(branchFormSchema),
-    defaultValues: {
-      name: "",
-      site_url: "",
-      borough: "",
-      street: "",
-      city: "",
-      latitude: undefined,
-      longitude: undefined,
-      rating: undefined,
-      working_hours: "",
-      about: "",
-      location_link: "",
-    },
-  });
+  const [formData, setFormData] = useState<NewBranchForm>(initialFormState);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<any>({});
 
-  const onSubmit = async (data: NewBranchForm) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]:
+        name === "latitude" || name === "longitude" || name === "rating"
+          ? value === ""
+            ? undefined
+            : parseFloat(value)
+          : value,
+    }));
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
+  };
+
+  const validateForm = () => {
+    let formErrors: any = {};
+    if (!formData.name) formErrors.name = "Branch Name is required.";
+    if (!formData.latitude) formErrors.latitude = "Latitude is required.";
+    if (!formData.longitude) formErrors.longitude = "Longitude is required.";
+    if (formData.rating && (formData.rating < 0 || formData.rating > 5))
+      formErrors.rating = "Rating should be between 0 and 5.";
+
+    return formErrors;
+  };
+
+  const handleSubmit = async () => {
+    const formErrors = validateForm();
+    setErrors(formErrors);
+
+    if (Object.keys(formErrors).length > 0) return;
+
+    if (!pharmacy?.id) return;
+
+    setIsSubmitting(true);
     try {
-      // TODO: Implement branch creation logic
-      console.log("Branch data:", { ...data, pharmacyId: user?.pharmacyId });
-      toast({
-        title: "Branch Added Successfully",
-        description: "The new branch has been added to your pharmacy.",
-      });
+      await addBranch(
+        formData.name,
+        formData.latitude,
+        formData.longitude,
+        formData.street,
+        formData.borough,
+        formData.city,
+        formData.site_url || null,
+        formData.location_link || null,
+        formData.working_hours,
+        formData.rating,
+        formData.about
+      );
+      toast({ title: "Success", description: "Branch added successfully!" });
       navigate("/dashboard");
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to add branch. Please try again.",
+        description: "Failed to add branch.",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="min-h-screen dark-gradient py-6 px-4">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-3xl mx-auto">
         <Button
           variant="ghost"
           className="mb-4 flex items-center gap-1 bg-gray-700/50 hover:bg-gray-600/50"
@@ -104,240 +115,177 @@ const AddBranchPage: React.FC = () => {
           Back to Dashboard
         </Button>
 
-        <Card className="dark-card">
+        <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl font-bold text-white">
-              <Building2 className="h-6 w-6" />
-              Add New Branch
+            <CardTitle className="flex items-center gap-2 text-2xl font-bold text-gray-200">
+              <Building2 className="h-6 w-6" /> Add New Branch
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
+            <div className="space-y-2">
+              <div className="space-y-2">
+                <Label className="text-gray-300">Branch Name *</Label>
+                <Input
                   name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Branch Name *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter branch name"
-                          {...field}
-                          className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Enter branch name"
+                  className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                 />
+                {errors.name && (
+                  <p className="text-red-500 text-sm">{errors.name}</p>
+                )}
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-300">Latitude *</Label>
+                  <Input
                     name="latitude"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">Latitude *</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="any"
-                            placeholder="Enter latitude"
-                            {...field}
-                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                            className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    type="number"
+                    value={formData.latitude ?? ""}
+                    onChange={handleInputChange}
+                    placeholder="Enter latitude"
+                    className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                   />
-
-                  <FormField
-                    control={form.control}
+                  {errors.latitude && (
+                    <p className="text-red-500 text-sm">{errors.latitude}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-300">Longitude *</Label>
+                  <Input
                     name="longitude"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">Longitude *</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="any"
-                            placeholder="Enter longitude"
-                            {...field}
-                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                            className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    type="number"
+                    value={formData.longitude ?? ""}
+                    onChange={handleInputChange}
+                    placeholder="Enter longitude"
+                    className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                   />
+                  {errors.longitude && (
+                    <p className="text-red-500 text-sm">{errors.longitude}</p>
+                  )}
                 </div>
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <FormField
-                    control={form.control}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-300">Street</Label>
+                  <Input
                     name="street"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">Street</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter street"
-                            {...field}
-                            className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    value={formData.street || ""}
+                    onChange={handleInputChange}
+                    placeholder="Enter street"
+                    className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                   />
-
-                  <FormField
-                    control={form.control}
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-300">Borough</Label>
+                  <Input
                     name="borough"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">Borough</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter borough"
-                            {...field}
-                            className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    value={formData.borough || ""}
+                    onChange={handleInputChange}
+                    placeholder="Enter borough"
+                    className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                   />
-
-                  <FormField
-                    control={form.control}
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-300">City</Label>
+                  <Input
                     name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">City</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter city"
-                            {...field}
-                            className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    value={formData.city || ""}
+                    onChange={handleInputChange}
+                    placeholder="Enter city"
+                    className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                   />
                 </div>
+              </div>
 
-                <FormField
-                  control={form.control}
+              <div className="space-y-2">
+                <Label className="text-gray-300">Website URL</Label>
+                <Input
                   name="site_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Website URL</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="url"
-                          placeholder="Enter website URL"
-                          {...field}
-                          className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  value={formData.site_url || ""}
+                  onChange={handleInputChange}
+                  placeholder="Enter website URL"
+                  className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                 />
+              </div>
 
-                <FormField
-                  control={form.control}
+              <div className="space-y-2">
+                <Label className="text-gray-300">Location Link</Label>
+                <Input
                   name="location_link"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Location Link</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="url"
-                          placeholder="Enter location link (e.g., Google Maps)"
-                          {...field}
-                          className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  value={formData.location_link || ""}
+                  onChange={handleInputChange}
+                  placeholder="Enter location link (e.g., Google Maps)"
+                  className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                 />
+              </div>
 
-                <FormField
-                  control={form.control}
+              <div className="space-y-2">
+                <Label className="text-gray-300">Working Hours</Label>
+                <Textarea
                   name="working_hours"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Working Hours</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder='e.g., {"Monday": "8AM-1AM", "Tuesday":"8AM-1AM"...}'
-                          {...field}
-                          className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500 resize-none max-h-20"
-                          style={{ scrollbarColor: "#374151 #1f2937" }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  value={formData.working_hours || ""}
+                  onChange={handleInputChange}
+                  rows={3}
+                  placeholder='e.g., ("Monday": "8AM-1AM", "Tuesday":"8AM-1AM"...)'
+                  style={{ scrollbarColor: "#374151 #1f2937" }}
+                  className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500 resize-none"
                 />
+              </div>
 
-                <FormField
-                  control={form.control}
+              <div className="space-y-2">
+                <Label className="text-gray-300">Rating</Label>
+                <Input
                   name="rating"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Rating</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          max="5"
-                          placeholder="Enter rating (0-5)"
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                          className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="5"
+                  value={formData.rating ?? ""}
+                  onChange={handleInputChange}
+                  placeholder="Enter rating (0-5)"
+                  className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                 />
+                {errors.rating && (
+                  <p className="text-red-500 text-sm">{errors.rating}</p>
+                )}
+              </div>
 
-                <FormField
-                  control={form.control}
+              <div className="space-y-2">
+                <Label className="text-gray-300">About</Label>
+                <Textarea
                   name="about"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">About</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Enter branch description"
-                          {...field}
-                          className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500 resize-none max-h-20"
-                          style={{ scrollbarColor: "#374151 #1f2937" }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  value={formData.about || ""}
+                  onChange={handleInputChange}
+                  rows={3}
+                  placeholder="Enter branch description"
+                  style={{ scrollbarColor: "#374151 #1f2937" }}
+                  className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500 resize-none"
                 />
+              </div>
 
-                <div className="pt-4">
-                  <Button type="submit" className="w-full">
-                    Add Branch
-                  </Button>
-                </div>
-              </form>
-            </Form>
+              <div className="flex justify-end pt-4">
+                <Button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className="w-full"
+                >
+                  {isSubmitting ? (
+                    <div className="flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin border-2 border-t-transparent rounded-full" />
+                      Adding...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Save className="h-4 w-4" /> Add Branch
+                    </div>
+                  )}
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

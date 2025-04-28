@@ -387,3 +387,43 @@ export const deleteProducts = async (productIds: string[]) => {
     throw error;
   }
 };
+
+export const addBranch = async (
+  name: string,
+  latitude: number,
+  longitude: number,
+  street: string,
+  borough: string,
+  city: string,
+  website_url: string,
+  location_link: string,
+  working_hours: string,
+  rating: number,
+  about: string
+) => {
+  try {
+    const response = await databases.createDocument(
+      config.databaseID,
+      config.branchCollectionID,
+      ID.unique(),
+      {
+        name: name,
+        site: website_url,
+        borough: borough,
+        street: street,
+        city: city,
+        latitude: latitude,
+        longitude: longitude,
+        rating: rating,
+        working_hours: working_hours,
+        about: about,
+        location_link: location_link,
+        pharmacyId: localStorage.getItem("pharmacyId"),
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error("Error adding branch:", error);
+    throw error;
+  }
+};
