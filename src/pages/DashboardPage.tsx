@@ -3,7 +3,10 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { getBranchesByPharmacyId } from "@/services/appwrite";
+import {
+  getBranchesByPharmacyId,
+  getProductsByPharmacyId,
+} from "@/services/appwrite";
 import { Input } from "@/components/ui/input";
 import { cleanStreetName, isPharmacyOpen } from "@/constants/datapulling";
 import {
@@ -37,8 +40,11 @@ const DashboardPage: React.FC = () => {
   const { pharmacy, logout, isLoading } = useAuth();
   const navigate = useNavigate();
   const [branches, setBranches] = useState([]);
+  const [productsLength, setProductLength] = useState(0);
+  const [branchesLength, setBranchesLength] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [branchloading, setBranchLoading] = useState(false);
+  const [productloading, setProductLoading] = useState(false);
   const { toast } = useToast();
   const filteredBranches = branches.filter((branch) =>
     branch.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -49,9 +55,10 @@ const DashboardPage: React.FC = () => {
 
     const fetchData = async () => {
       try {
-        setLoading(true);
+        setBranchLoading(true);
         const branchData = await getBranchesByPharmacyId(pharmacy.id);
         setBranches(branchData);
+        setBranchesLength(branchData.length);
       } catch (error) {
         console.error(error);
         toast({
@@ -60,11 +67,29 @@ const DashboardPage: React.FC = () => {
           description: "Failed to load data.",
         });
       } finally {
-        setLoading(false);
+        setBranchLoading(false);
+      }
+    };
+
+    const fetchData2 = async () => {
+      try {
+        setProductLoading(true);
+        const productData = await getProductsByPharmacyId(pharmacy.id);
+        setProductLength(productData.length);
+      } catch (error) {
+        console.error(error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load data.",
+        });
+      } finally {
+        setProductLoading(false);
       }
     };
 
     fetchData();
+    fetchData2();
   }, [pharmacy?.id]);
 
   const allProducts = [
@@ -323,6 +348,65 @@ const DashboardPage: React.FC = () => {
         </div>
         <div className="mt-4">
           <h3 className="text-lg font-medium text-white mb-4">
+            Inventory Overview
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Total Products Card */}
+            <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-yellow-500 transition-all hover:scale-105 duration-200 ease-in-out">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-yellow-400">
+                  <LayoutDashboard className="h-5 w-5" />
+                  Total Products
+                </CardTitle>
+                <CardDescription className="text-gray-400">
+                  Number of products currently in your inventory
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-white">
+                  {productloading ? "Loading..." : productsLength}
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  className="w-full bg-gray-800 hover:bg-yellow-600 text-white cursor-default"
+                  disabled
+                >
+                  {productloading ? "Loading..." : `${productsLength} Products`}
+                </Button>
+              </CardFooter>
+            </Card>
+
+            {/* Total Branches Card */}
+            <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-purple-500 transition-all hover:scale-105 duration-200 ease-in-out">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-purple-400">
+                  <LayoutDashboard className="h-5 w-5" />
+                  Total Branches
+                </CardTitle>
+                <CardDescription className="text-gray-400">
+                  Number of branches in your pharmacy network
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-white">
+                  {branchloading ? "Loading..." : branchesLength}
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  className="w-full bg-gray-800 hover:bg-purple-600 text-white cursor-default"
+                  disabled
+                >
+                  {branchloading ? "Loading..." : `${branchesLength} Branches`}
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <h3 className="text-lg font-medium text-white mb-4">
             Most Searched Products
           </h3>
           <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
@@ -380,7 +464,7 @@ const DashboardPage: React.FC = () => {
                 />
               </div>
 
-              {loading ? (
+              {branchloading ? (
                 <div className="flex justify-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
                 </div>
