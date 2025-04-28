@@ -329,3 +329,61 @@ export const getProductAlternatives = async (productId: string) => {
     return [];
   }
 };
+
+export const deleteProducts = async (productIds: string[]) => {
+  try {
+    // Run all deletions in parallel
+    await Promise.all(
+      productIds.map(async (productId) => {
+        // 1. Delete all availabilities
+        const availabilities = await databases.listDocuments(
+          config.databaseID,
+          config.product_availabilityCollectionID,
+          [Query.equal("productId", productId)]
+        );
+
+        await Promise.all(
+          availabilities.documents.map((availability) =>
+            databases.deleteDocument(
+              config.databaseID,
+              config.product_availabilityCollectionID,
+              availability.$id
+            )
+          )
+        );
+
+        // 2. Delete all alternatives (both directions)
+        const alternatives = await databases.listDocuments(
+          config.databaseID,
+          config.alternativeCollectionID,
+          [
+            Query.or([
+              Query.equal("productId", productId),
+              Query.equal("alternativeProductId", productId),
+            ]),
+          ]
+        );
+
+        await Promise.all(
+          alternatives.documents.map((alternative) =>
+            databases.deleteDocument(
+              config.databaseID,
+              config.alternativeCollectionID,
+              alternative.$id
+            )
+          )
+        );
+
+        // 3. Delete the product itself
+        await databases.deleteDocument(
+          config.databaseID,
+          config.productCollectionID,
+          productId
+        );
+      })
+    );
+  } catch (error) {
+    console.error("Error deleting products:", error);
+    throw error;
+  }
+};

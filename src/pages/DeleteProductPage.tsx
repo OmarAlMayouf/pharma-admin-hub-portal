@@ -2,6 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowLeft, Search, Trash2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { getProductsByPharmacyId, deleteProducts } from "@/services/appwrite";
 import {
   Card,
   CardContent,
@@ -9,16 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import {
-  getProductsByPharmacyId,
-  deleteProducts,
-} from "@/services/productService";
-import { Product } from "@/types/pharmacy";
-import { ArrowLeft, Search, Trash2 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,27 +27,37 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const DeleteProductPage: React.FC = () => {
-  const { user } = useAuth();
+  const { pharmacy } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    if (user?.pharmacyId) {
-      setLoading(true);
-      getProductsByPharmacyId(user.pharmacyId)
-        .then((fetchedProducts) => {
-          setProducts(fetchedProducts);
-        })
-        .finally(() => {
-          setLoading(false);
+    if (!pharmacy?.id) return;
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const productData = await getProductsByPharmacyId(pharmacy.id);
+        setProducts(productData);
+      } catch (error) {
+        console.error(error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load data.",
         });
-    }
-  }, [user?.pharmacyId]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [pharmacy?.id]);
 
   const handleSelectProduct = (productId: string, checked: boolean) => {
     if (checked) {
@@ -64,7 +69,7 @@ const DeleteProductPage: React.FC = () => {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedProducts(filteredProducts.map((product) => product.id));
+      setSelectedProducts(filteredProducts.map((product) => product?.$id));
     } else {
       setSelectedProducts([]);
     }
@@ -78,7 +83,7 @@ const DeleteProductPage: React.FC = () => {
       await deleteProducts(selectedProducts);
 
       setProducts((prev) =>
-        prev.filter((product) => !selectedProducts.includes(product.id))
+        prev.filter((product) => !selectedProducts.includes(product?.$id))
       );
 
       toast({
@@ -197,21 +202,23 @@ const DeleteProductPage: React.FC = () => {
                   >
                     {filteredProducts.map((product) => (
                       <div
-                        key={product.id}
+                        key={product?.$id}
                         className="grid grid-cols-[40px_auto_100px_100px] gap-4 items-center p-3 border-t border-gray-800 hover:bg-gray-800/50"
                       >
                         <div>
                           <Checkbox
-                            checked={selectedProducts.includes(product.id)}
+                            checked={selectedProducts.includes(product?.$id)}
                             onCheckedChange={(checked) =>
-                              handleSelectProduct(product.id, !!checked)
+                              handleSelectProduct(product?.$id, !!checked)
                             }
                           />
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-md overflow-hidden">
                             <img
-                              src={product.imageUrl}
+                              src={
+                                product.image || "https://placehold.co/100x100"
+                              }
                               alt={product.name}
                               className="w-full h-full object-cover"
                               onError={(e) => {
@@ -222,9 +229,6 @@ const DeleteProductPage: React.FC = () => {
                           </div>
                           <div>
                             <p className="font-medium">{product.name}</p>
-                            <p className="text-xs text-muted-foreground truncate max-w-sm">
-                              {product.description}
-                            </p>
                           </div>
                         </div>
                         <div className="text-right font-medium">
@@ -252,7 +256,7 @@ const DeleteProductPage: React.FC = () => {
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => {
-                                    setSelectedProducts([product.id]);
+                                    setSelectedProducts([product?.$id]);
                                     handleDeleteProducts();
                                   }}
                                 >
