@@ -116,6 +116,25 @@ export const getProductsByPharmacyId = async (pharmacyId: string) => {
     return [];
   }
 };
+export const getProductsExceptThisByPharmacyId = async (
+  pharmacyId: string,
+  productId: string
+) => {
+  try {
+    const response = await databases.listDocuments(
+      config.databaseID,
+      config.productCollectionID,
+      [Query.equal("pharmacyId", pharmacyId), Query.limit(10000)]
+    );
+    const filtered = response.documents.filter(
+      (product) => product.$id !== productId
+    );
+    return filtered;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return [];
+  }
+};
 
 export const addProduct = async (
   name: string,
@@ -126,7 +145,6 @@ export const addProduct = async (
   branches: string[],
   alternatives: string[]
 ) => {
-  console.log("Adding product:", { name, price, description, imageUrl, url }, branches, alternatives);
   try {
     const response = await databases.createDocument(
       config.databaseID,
@@ -175,7 +193,6 @@ export const addProduct = async (
         }
       );
     }
-    console.log("Product alternatives:", getProductAlternatives(response.$id));
     return response;
   } catch (error) {
     console.error("Error adding product:", error);
@@ -183,6 +200,119 @@ export const addProduct = async (
   }
 };
 
+export const modifyProduct = async (
+  name: string,
+  price: number,
+  description: string,
+  imageUrl: string,
+  url: string,
+  branches: string[],
+  alternatives: string[],
+  productId: string
+) => {
+  try {
+    const response = await databases.updateDocument(
+      config.databaseID,
+      config.productCollectionID,
+      productId,
+      {
+        name: name,
+        price: price,
+        description: description,
+        image: imageUrl,
+        url: url,
+      }
+    );
+
+    // Delete branches availability from the product
+    const oldBranches = await databases.listDocuments(
+      config.databaseID,
+      config.product_availabilityCollectionID,
+      [Query.equal("productId", productId)]
+    );
+
+    for (const branch of oldBranches.documents) {
+      await databases.deleteDocument(
+        config.databaseID,
+        config.product_availabilityCollectionID,
+        branch.$id
+      );
+    }
+    // Add branches availability to the product
+    for (const branchId of branches) {
+      await databases.createDocument(
+        config.databaseID,
+        config.product_availabilityCollectionID,
+        ID.unique(),
+        {
+          productId: response.$id,
+          branchId: branchId,
+        }
+      );
+    }
+
+    // Delete alternative products from the product
+    const oldAlternatives = await databases.listDocuments(
+      config.databaseID,
+      config.alternativeCollectionID,
+      [
+        Query.or([
+          Query.equal("productId", productId),
+          Query.equal("alternativeProductId", productId),
+        ]),
+      ]
+    );
+
+    for (const alternative of oldAlternatives.documents) {
+      await databases.deleteDocument(
+        config.databaseID,
+        config.alternativeCollectionID,
+        alternative.$id
+      );
+    }
+
+    // Insert new alternatives (BIDIRECTIONAL)
+    for (const alternativeId of alternatives) {
+      await databases.createDocument(
+        config.databaseID,
+        config.alternativeCollectionID,
+        ID.unique(),
+        {
+          productId: response.$id,
+          alternativeProductId: alternativeId,
+        }
+      );
+      await databases.createDocument(
+        config.databaseID,
+        config.alternativeCollectionID,
+        ID.unique(),
+        {
+          productId: alternativeId,
+          alternativeProductId: response.$id,
+        }
+      );
+    }
+    return response;
+  } catch (error) {
+    console.error("Error adding product:", error);
+    throw error;
+  }
+};
+
+export const getProductAvailability = async (productId: string) => {
+  try {
+    const response = await databases.listDocuments(
+      config.databaseID,
+      config.product_availabilityCollectionID,
+      [Query.equal("productId", productId)]
+    );
+    const branchIds = response.documents.map((doc) => doc.branchId.$id);
+    return branchIds;
+  } catch (error) {
+    console.error("Error fetching product availability:", error);
+    return [];
+  }
+};
 export const getProductAlternatives = async (productId: string) => {
   try {
     const response = await databases.listDocuments(
@@ -190,7 +320,9 @@ export const getProductAlternatives = async (productId: string) => {
       config.alternativeCollectionID,
       [Query.equal("productId", productId)]
     );
-    const alternativeProductIds = response.documents.map((doc) => doc.alternativeProductId);
+    const alternativeProductIds = response.documents.map(
+      (doc) => doc.alternativeProductId
+    );
     return alternativeProductIds;
   } catch (error) {
     console.error("Error fetching product alternatives:", error);
