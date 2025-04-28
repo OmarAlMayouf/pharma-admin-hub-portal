@@ -463,3 +463,18 @@ export const deleteBranches = async (branchIds: string[]) => {
     throw error;
   }
 };
+
+export const modifyBranch = async (
+  name: string,
+  latitude: number,
+  longitude: number,
+  street: string,
+  borough: string,
+  city: string,
+  website_url: string,
+  location_link: string,
+  working_hours: string,
+  rating: number,
+  about: string,
+  branchId: string
+) => {};

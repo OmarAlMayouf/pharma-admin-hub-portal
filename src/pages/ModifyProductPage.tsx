@@ -38,7 +38,7 @@ const initialFormState: NewProductForm = {
   alternatives: [],
 };
 
-const ModifyBranchPage: React.FC = () => {
+const MofifyProductPage: React.FC = () => {
   const { pharmacy } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -566,4 +566,4 @@ const ModifyBranchPage: React.FC = () => {
   );
 };
 
-export default ModifyBranchPage;
+export default MofifyProductPage;
