@@ -141,8 +141,8 @@ const AddProductPage: React.FC = () => {
         formData.name,
         parseFloat(formData.price),
         formData.description,
-        formData.imageUrl,
-        formData.url,
+        formData.imageUrl || null,
+        formData.url || null,
         formData.branches,
         formData.alternatives
       );

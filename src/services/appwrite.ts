@@ -13,7 +13,7 @@ export const config = {
   reminderCollectionID: "67c1fb7400210ddc07dc",
   ticketCollectionID: "67c92eb400022f36cb17",
   product_availabilityCollectionID: "67ade8ee0020fa040538",
-  alternativeCollectionID: "3424234dd",
+  alternativeCollectionID: "680f009f000b95114982",
   wishlistCollectionID: "67fa1767002e153281c8",
   storageID: "67a8fee40010aedf2888",
 };
@@ -126,6 +126,7 @@ export const addProduct = async (
   branches: string[],
   alternatives: string[]
 ) => {
+  console.log("Adding product:", { name, price, description, imageUrl, url }, branches, alternatives);
   try {
     const response = await databases.createDocument(
       config.databaseID,
@@ -164,10 +165,35 @@ export const addProduct = async (
           alternativeProductId: alternativeId,
         }
       );
+      await databases.createDocument(
+        config.databaseID,
+        config.alternativeCollectionID,
+        ID.unique(),
+        {
+          productId: alternativeId,
+          alternativeProductId: response.$id,
+        }
+      );
     }
+    console.log("Product alternatives:", getProductAlternatives(response.$id));
     return response;
   } catch (error) {
     console.error("Error adding product:", error);
     throw error;
+  }
+};
+
+export const getProductAlternatives = async (productId: string) => {
+  try {
+    const response = await databases.listDocuments(
+      config.databaseID,
+      config.alternativeCollectionID,
+      [Query.equal("productId", productId)]
+    );
+    const alternativeProductIds = response.documents.map((doc) => doc.alternativeProductId);
+    return alternativeProductIds;
+  } catch (error) {
+    console.error("Error fetching product alternatives:", error);
+    return [];
   }
 };
