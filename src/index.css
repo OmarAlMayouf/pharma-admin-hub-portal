@@ -46,6 +46,14 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px rgba(31, 41, 55, 0.5) inset !important; /* bg-gray-800/50 */
+    -webkit-text-fill-color: #f3f4f6 !important; /* text-gray-100 */
+    transition: background-color 9999s ease-in-out 0s;
+  }
 }
 
 @layer components {
