@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import {
   getBranchesByPharmacyId,
   getProductsByPharmacyId,
+  getSearchAnalytics,
 } from "@/services/appwrite";
 import { Input } from "@/components/ui/input";
 import { cleanStreetName, isPharmacyOpen } from "@/constants/datapulling";
@@ -48,6 +49,8 @@ const DashboardPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [branchloading, setBranchLoading] = useState(false);
   const [productloading, setProductLoading] = useState(false);
+  const [chartloading, setChartLoading] = useState(false);
+  const [topProducts, setTopProducts] = useState([]);
   const { toast } = useToast();
   const filteredBranches = branches.filter((branch) =>
     branch.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -91,23 +94,40 @@ const DashboardPage: React.FC = () => {
       }
     };
 
+    const fetchAnalytics = async () => {
+      try {
+        setChartLoading(true);
+        const data = await getSearchAnalytics();
+        console.log("Data:", data);
+        const grouped = {};
+
+        data.forEach((entry) => {
+          const term = entry.searchTerm.toLowerCase();
+          grouped[term] = (grouped[term] || 0) + 1;
+        });
+
+        const chartData = Object.entries(grouped)
+          .map(([name, searches]) => ({ name, searches: Number(searches) }))
+          .sort((a, b) => b.searches - a.searches)
+          .slice(0, 7);
+
+        setTopProducts(chartData);
+      } catch (error) {
+        console.error(error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load data.",
+        });
+      } finally {
+        setChartLoading(false);
+      }
+    };
+
+    fetchAnalytics();
     fetchData();
     fetchData2();
   }, [pharmacy?.id]);
-
-  const allProducts = [
-    { name: "Product A", searches: 120 },
-    { name: "Product B", searches: 95 },
-    { name: "Product C", searches: 210 },
-    { name: "Product D", searches: 35 },
-    { name: "Product E", searches: 75 },
-    { name: "Product F", searches: 180 },
-    { name: "Product G", searches: 60 },
-  ];
-
-  const topN = 7;
-
-  const topProducts = allProducts.slice(0, topN);
 
   function centerHighest(products) {
     const sorted = [...products].sort((a, b) => b.searches - a.searches);
@@ -264,6 +284,7 @@ const DashboardPage: React.FC = () => {
                         fill="#f43f5e"
                         stroke="#f43f5e"
                         radius={[10, 10, 0, 0]}
+                        maxBarSize={63}
                       />
                     </BarChart>
                   </ResponsiveContainer>

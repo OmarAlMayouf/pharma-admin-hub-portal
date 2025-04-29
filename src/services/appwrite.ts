@@ -15,6 +15,7 @@ export const config = {
   product_availabilityCollectionID: "67ade8ee0020fa040538",
   alternativeCollectionID: "680f009f000b95114982",
   wishlistCollectionID: "67fa1767002e153281c8",
+  search_logCollectionID: "6810c417001811f5b7ff",
   storageID: "67a8fee40010aedf2888",
 };
 
@@ -501,5 +502,19 @@ export const modifyBranch = async (
   } catch (error) {
     console.error("Error modifying branch:", error);
     throw error;
+  }
+};
+
+export const getSearchAnalytics = async () => {
+  try {
+    const response = await databases.listDocuments(
+      config.databaseID,
+      config.search_logCollectionID,
+      [Query.limit(1000)]
+    );
+    return response.documents;
+  } catch (err) {
+    console.error("Failed to fetch search analytics:", err);
+    return [];
   }
 };
