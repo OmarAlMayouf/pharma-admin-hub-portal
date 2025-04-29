@@ -189,20 +189,11 @@ const DashboardPage: React.FC = () => {
                     Number of products currently in your inventory
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent></CardContent>
+                <CardFooter>
                   <p className="text-3xl font-bold text-white">
                     {productloading ? "Loading..." : productsLength}
                   </p>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    className="w-full bg-gray-800 hover:bg-yellow-600 text-white cursor-default"
-                    disabled
-                  >
-                    {productloading
-                      ? "Loading..."
-                      : `${productsLength} Products`}
-                  </Button>
                 </CardFooter>
               </Card>
 
@@ -217,20 +208,11 @@ const DashboardPage: React.FC = () => {
                     Number of branches in your pharmacy network
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent></CardContent>
+                <CardFooter>
                   <p className="text-3xl font-bold text-white">
                     {branchloading ? "Loading..." : branchesLength}
                   </p>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    className="w-full bg-gray-800 hover:bg-purple-600 text-white cursor-default"
-                    disabled
-                  >
-                    {branchloading
-                      ? "Loading..."
-                      : `${branchesLength} Branches`}
-                  </Button>
                 </CardFooter>
               </Card>
             </div>
@@ -240,7 +222,7 @@ const DashboardPage: React.FC = () => {
             <h3 className="text-lg font-medium text-white mb-4">
               Product Management
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Product management cards */}
 
               {/* Bulk Add Product Card */}
@@ -323,34 +305,34 @@ const DashboardPage: React.FC = () => {
                   </Button>
                 </CardFooter>
               </Card>
-            </div>
 
-            {/* Modify Product Card */}
-            <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-sky-500 transition-all hover:scale-105 duration-200 ease-in-out">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-sky-400">
-                  <Edit className="h-5 w-5" />
-                  Modify Product
-                </CardTitle>
-                <CardDescription className="text-gray-400">
-                  Update existing product information
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-500">
-                  Change product details, branch availability, or alternative
-                  products.
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Button
-                  className="w-full bg-gray-800  hover:bg-sky-700 text-white"
-                  onClick={() => navigate("/modify-product")}
-                >
-                  Modify Products
-                </Button>
-              </CardFooter>
-            </Card>
+              {/* Modify Product Card */}
+              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-sky-500 transition-all hover:scale-105 duration-200 ease-in-out flex flex-col h-full">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-sky-400">
+                    <Edit className="h-5 w-5" />
+                    Modify Product
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Update existing product information
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1">
+                  <p className="text-sm text-gray-500">
+                    Change product details, branch availability, or alternative
+                    products.
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    className="w-full bg-gray-800  hover:bg-sky-700 text-white"
+                    onClick={() => navigate("/modify-product")}
+                  >
+                    Modify Products
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
           </div>
 
           <div>
