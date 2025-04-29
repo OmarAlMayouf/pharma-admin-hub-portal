@@ -510,7 +510,7 @@ export const getSearchAnalytics = async () => {
     const response = await databases.listDocuments(
       config.databaseID,
       config.search_logCollectionID,
-      [Query.limit(1000)]
+      [Query.equal("pharmacyId", localStorage.getItem("pharmacyId")), Query.limit(10000)]
     );
     return response.documents;
   } catch (err) {
