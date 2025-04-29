@@ -140,7 +140,7 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className="min-h-screen dark-gradient">
-      <header className="glass-effect">
+      <header className="glass-effect sticky top-0 z-10">
         <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-white">
@@ -162,6 +162,7 @@ const DashboardPage: React.FC = () => {
       </header>
 
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        {/* Dashboard Header */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold flex items-center gap-2 text-white">
             <LayoutDashboard className="h-5 w-5" />
@@ -172,309 +173,112 @@ const DashboardPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-lg font-medium text-white mb-4">
-              Inventory Overview
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Total Products Card */}
-              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-yellow-500 transition-all hover:scale-105 duration-200 ease-in-out">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-yellow-400">
-                    <LayoutDashboard className="h-5 w-5" />
-                    Total Products
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Number of products currently in your inventory
-                  </CardDescription>
-                </CardHeader>
-                <CardContent></CardContent>
-                <CardFooter>
-                  <p className="text-3xl font-bold text-white">
-                    {productloading ? "Loading..." : productsLength}
-                  </p>
-                </CardFooter>
-              </Card>
+        {/* Main Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Overview Cards and Most Searched */}
+          <div className="lg:col-span-2 space-y-4">
+            {/* Overview Cards */}
+            <div>
+              <h3 className="text-lg font-medium text-white mb-4">Overview</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Total Products Card */}
+                <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-yellow-500 transition-all hover:scale-105 duration-200 ease-in-out">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center gap-2 text-yellow-400">
+                      <LayoutDashboard className="h-5 w-5" />
+                      Total Products
+                    </CardTitle>
+                    <CardDescription className="text-gray-400">
+                      Number of products currently in your inventory
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-4xl font-bold text-white">
+                      {productloading ? "Loading..." : productsLength}
+                    </p>
+                  </CardContent>
+                  <CardFooter>
+                    <p className="text-sm text-gray-400">Active products</p>
+                  </CardFooter>
+                </Card>
 
-              {/* Total Branches Card */}
-              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-purple-500 transition-all hover:scale-105 duration-200 ease-in-out">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-purple-400">
-                    <LayoutDashboard className="h-5 w-5" />
-                    Total Branches
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Number of branches in your pharmacy network
-                  </CardDescription>
-                </CardHeader>
-                <CardContent></CardContent>
-                <CardFooter>
-                  <p className="text-3xl font-bold text-white">
-                    {branchloading ? "Loading..." : branchesLength}
-                  </p>
-                </CardFooter>
+                {/* Total Branches Card */}
+                <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-purple-500 transition-all hover:scale-105 duration-200 ease-in-out">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center gap-2 text-purple-400">
+                      <Building2 className="h-5 w-5" />
+                      Total Branches
+                    </CardTitle>
+                    <CardDescription className="text-gray-400">
+                      Number of branches in your pharmacy network
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-4xl font-bold text-white">
+                      {branchloading ? "Loading..." : branchesLength}
+                    </p>
+                  </CardContent>
+                  <CardFooter>
+                    <p className="text-sm text-gray-400">Active locations</p>
+                  </CardFooter>
+                </Card>
+              </div>
+            </div>
+
+            {/* Most Searched Products Chart */}
+            <div>
+              <h3 className="text-lg font-medium text-white mb-4">
+                Most Searched Products
+              </h3>
+              <Card className="bg-gray-900 border border-gray-800">
+                <CardContent className="pt-6">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart
+                      data={centerHighest(topProducts)}
+                      margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
+                      barCategoryGap="15%"
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis
+                        dataKey="name"
+                        tick={{ fill: "#9CA3AF", fontSize: 12 }}
+                        axisLine={{ stroke: "#4B5563" }}
+                        tickLine={{ stroke: "#4B5563" }}
+                      />
+                      <YAxis
+                        tick={{ fill: "#9CA3AF", fontSize: 12 }}
+                        axisLine={{ stroke: "#4B5563" }}
+                        tickLine={{ stroke: "#4B5563" }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#1F2937",
+                          borderColor: "#374151",
+                          borderRadius: 8,
+                        }}
+                        itemStyle={{ color: "#F9FAFB" }}
+                        cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
+                      />
+                      <Bar
+                        dataKey="searches"
+                        fill="#f43f5e"
+                        stroke="#f43f5e"
+                        radius={[10, 10, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
               </Card>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium text-white mb-4">
-              Product Management
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Product management cards */}
-
-              {/* Bulk Add Product Card */}
-              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-violet-500 transition-all hover:scale-105 duration-200 ease-in-out">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-violet-400">
-                    <FilePlus2 className="h-5 w-5" />
-                    Bulk Add Product
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Upload a CSV file to add multiple products at once
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-500">
-                    Upload a CSV file containing product details to add them in
-                    bulk to your pharmacy inventory.
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    className="w-full bg-gray-800 hover:bg-violet-700 text-white"
-                    onClick={() => {}}
-                  >
-                    Bulk Add Products
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              {/* Add Product Card */}
-              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-emerald-500 transition-all hover:scale-105 duration-200 ease-in-out">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-emerald-400">
-                    <PlusCircle className="h-5 w-5" />
-                    Add Product
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Add a new product to your pharmacy inventory
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-500">
-                    Create a new product with details, branch availability, and
-                    alternative products.
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    className="w-full bg-gray-800 hover:bg-emerald-700 text-white"
-                    onClick={() => navigate("/add-product")}
-                  >
-                    Add New Product
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              {/* Delete Product Card */}
-              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-rose-500 transition-all hover:scale-105 duration-200 ease-in-out">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-rose-400">
-                    <Trash2 className="h-5 w-5" />
-                    Delete Product
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Remove products from your inventory
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-500">
-                    Select and delete one or multiple products from your
-                    pharmacy catalog.
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    className="w-full bg-gray-800 hover:bg-rose-700 text-white"
-                    onClick={() => navigate("/delete-product")}
-                  >
-                    Delete Products
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              {/* Modify Product Card */}
-              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-sky-500 transition-all hover:scale-105 duration-200 ease-in-out flex flex-col h-full">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-sky-400">
-                    <Edit className="h-5 w-5" />
-                    Modify Product
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Update existing product information
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <p className="text-sm text-gray-500">
-                    Change product details, branch availability, or alternative
-                    products.
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    className="w-full bg-gray-800  hover:bg-sky-700 text-white"
-                    onClick={() => navigate("/modify-product")}
-                  >
-                    Modify Products
-                  </Button>
-                </CardFooter>
-              </Card>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium text-white mb-4">
-              Branch Management
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Add Branch Card */}
-              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-emerald-500 transition-all hover:scale-105 duration-200 ease-in-out">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-emerald-400">
-                    <Building2 className="h-5 w-5" />
-                    Add Branch
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Add a new branch to your pharmacy network
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-500">
-                    Create a new branch with location details, working hours,
-                    and contact information.
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    className="w-full bg-gray-800 hover:bg-emerald-700 text-white"
-                    onClick={() => navigate("/add-branch")}
-                  >
-                    Add New Branch
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              {/* Delete Branch Card */}
-              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-rose-500 transition-all hover:scale-105 duration-200 ease-in-out">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-rose-400">
-                    <Trash2 className="h-5 w-5" />
-                    Delete Branch
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Remove branches from your network
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-500">
-                    Select and delete one or multiple branches from your
-                    pharmacy network.
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    className="w-full bg-gray-800 hover:bg-rose-700 text-white"
-                    onClick={() => navigate("/delete-branch")}
-                  >
-                    Delete Branches
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              {/* Modify Branch Card */}
-              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-sky-500 transition-all hover:scale-105 duration-200 ease-in-out">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-sky-400">
-                    <Edit className="h-5 w-5" />
-                    Modify Branch
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Update existing branch information
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-500">
-                    Update branch details, location information, or working
-                    hours.
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    className="w-full bg-gray-800 hover:bg-sky-700 text-white"
-                    onClick={() => navigate("/modify-branch")}
-                  >
-                    Modify Branches
-                  </Button>
-                </CardFooter>
-              </Card>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-4 mt-4">
-          <div>
-            <h3 className="text-lg font-medium text-white mb-4">
-              Most Searched Products
-            </h3>
-            <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart
-                  data={centerHighest(topProducts)}
-                  margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
-                  barCategoryGap="15%"
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fill: "#9CA3AF", fontSize: 12 }}
-                    axisLine={{ stroke: "#4B5563" }}
-                    tickLine={{ stroke: "#4B5563" }}
-                  />
-                  <YAxis
-                    tick={{ fill: "#9CA3AF", fontSize: 12 }}
-                    axisLine={{ stroke: "#4B5563" }}
-                    tickLine={{ stroke: "#4B5563" }}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#1F2937",
-                      borderColor: "#374151",
-                      borderRadius: 8,
-                    }}
-                    itemStyle={{ color: "#F9FAFB" }}
-                    cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
-                  />
-                  <Bar
-                    dataKey="searches"
-                    fill="#f43f5e"
-                    radius={[10, 10, 0, 0]}
-                    stroke="#f43f5e"
-                    barSize={105}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div>
+          {/* Right Column - Branch Status List */}
+          <div className="flex flex-col max-h-[calc(100vh-200px)">
             <h3 className="text-lg font-medium text-white mb-4">
               Branches Status
             </h3>
-            <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
-              <div className="space-y-4">
+            <Card className="bg-gray-900 border border-gray-800 flex-1 flex flex-col">
+              <CardHeader className="pb-2">
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -484,25 +288,25 @@ const DashboardPage: React.FC = () => {
                     className="pl-9 bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                   />
                 </div>
-
+              </CardHeader>
+              <CardContent className="flex-1 p-0 flex flex-col">
                 {branchloading ? (
-                  <div className="flex justify-center py-8">
+                  <div className="flex-1 flex items-center justify-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
                   </div>
                 ) : filteredBranches.length === 0 ? (
-                  <div className="py-8 text-center text-gray-400">
+                  <div className="flex-1 flex items-center justify-center text-gray-400">
                     <p>No branches found matching your search.</p>
                   </div>
                 ) : (
                   <div
-                    className=" max-h-96 overflow-y-auto border border-gray-800 rounded-md"
+                    className="max-h-[525px] overflow-y-auto"
                     style={{ scrollbarColor: "#374151 #1f2937" }}
                   >
                     {filteredBranches.map((branch) => (
                       <div
                         key={branch.id}
-                        className="flex items-center p-3 border-t border-gray-800 hover:bg-gray-800/50"
-                        onClick={() => {}}
+                        className="flex items-center p-3 border-t border-gray-800 hover:bg-gray-800/50 transition-colors"
                       >
                         <div className="ml-3 flex-1">
                           <div className="font-medium">{branch.name}</div>
@@ -511,22 +315,192 @@ const DashboardPage: React.FC = () => {
                             - {branch.city}
                           </div>
                         </div>
-                        <span
-                          className={`ml-4 text-sm font-semibold ${
+                        <div
+                          className={`ml-4 px-2 py-1 rounded text-xs font-semibold ${
                             isPharmacyOpen(branch.working_hours) === "Opened"
-                              ? "text-emerald-400"
-                              : "text-rose-400"
+                              ? "bg-emerald-900/30 text-emerald-400"
+                              : "bg-rose-900/30 text-rose-400"
                           }`}
                         >
                           {isPharmacyOpen(branch.working_hours) === "Opened"
-                            ? "Opened"
+                            ? "Open"
                             : "Closed"}
-                        </span>
+                        </div>
                       </div>
                     ))}
                   </div>
                 )}
-              </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Quick Actions Section */}
+        <div className="mt-4">
+          <h3 className="text-lg font-medium text-white mb-4">Quick Actions</h3>
+
+          {/* Product Management */}
+          <div className="mb-6">
+            <h4 className="text-md font-medium text-gray-300 mb-4 flex items-center gap-2">
+              <FileCode className="h-4 w-4" />
+              Product Management
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Add Product Card */}
+              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-emerald-500 transition-all hover:scale-105 duration-200 ease-in-out">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-emerald-400 text-sm">
+                    <PlusCircle className="h-4 w-4" />
+                    Add Product
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-xs text-gray-500">
+                  Add a new product to your inventory
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    className="w-full bg-gray-800 hover:bg-emerald-700 text-white"
+                    onClick={() => navigate("/add-product")}
+                  >
+                    Add New
+                  </Button>
+                </CardFooter>
+              </Card>
+
+              {/* Bulk Add Product Card */}
+              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-violet-500 transition-all hover:scale-105 duration-200 ease-in-out">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-violet-400 text-sm">
+                    <FilePlus2 className="h-4 w-4" />
+                    Bulk Add
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-xs text-gray-500">
+                  Upload CSV to add multiple products
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    className="w-full bg-gray-800 hover:bg-violet-700 text-white"
+                    onClick={() => {}}
+                  >
+                    Upload CSV
+                  </Button>
+                </CardFooter>
+              </Card>
+
+              {/* Modify Product Card */}
+              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-sky-500 transition-all hover:scale-105 duration-200 ease-in-out">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-sky-400 text-sm">
+                    <Edit className="h-4 w-4" />
+                    Modify Product
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-xs text-gray-500">
+                  Update existing product information
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    className="w-full bg-gray-800 hover:bg-sky-700 text-white"
+                    onClick={() => navigate("/modify-product")}
+                  >
+                    Modify
+                  </Button>
+                </CardFooter>
+              </Card>
+
+              {/* Delete Product Card */}
+              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-rose-500 transition-all hover:scale-105 duration-200 ease-in-out">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-rose-400 text-sm">
+                    <Trash2 className="h-4 w-4" />
+                    Delete Product
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-xs text-gray-500">
+                  Remove products from your inventory
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    className="w-full bg-gray-800 hover:bg-rose-700 text-white"
+                    onClick={() => navigate("/delete-product")}
+                  >
+                    Delete
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+          </div>
+
+          {/* Branch Management */}
+          <div className="mb-6">
+            <h4 className="text-md font-medium text-gray-300 mb-4 flex items-center gap-2">
+              <Building2 className="h-4 w-4" />
+              Branch Management
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Add Branch Card */}
+              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-emerald-500 transition-all hover:scale-105 duration-200 ease-in-out">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-emerald-400 text-sm">
+                    <PlusCircle className="h-4 w-4" />
+                    Add Branch
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-xs text-gray-500">
+                  Add a new branch to your pharmacy network
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    className="w-full bg-gray-800 hover:bg-emerald-700 text-white"
+                    onClick={() => navigate("/add-branch")}
+                  >
+                    Add New
+                  </Button>
+                </CardFooter>
+              </Card>
+
+              {/* Modify Branch Card */}
+              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-sky-500 transition-all hover:scale-105 duration-200 ease-in-out">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-sky-400 text-sm">
+                    <Edit className="h-4 w-4" />
+                    Modify Branch
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-xs text-gray-500">
+                  Update existing branch information
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    className="w-full bg-gray-800 hover:bg-sky-700 text-white"
+                    onClick={() => navigate("/modify-branch")}
+                  >
+                    Modify
+                  </Button>
+                </CardFooter>
+              </Card>
+
+              {/* Delete Branch Card */}
+              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-rose-500 transition-all hover:scale-105 duration-200 ease-in-out">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-rose-400 text-sm">
+                    <Trash2 className="h-4 w-4" />
+                    Delete Branch
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-xs text-gray-500">
+                  Remove branches from your network
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    className="w-full bg-gray-800 hover:bg-rose-700 text-white"
+                    onClick={() => navigate("/delete-branch")}
+                  >
+                    Delete
+                  </Button>
+                </CardFooter>
+              </Card>
             </div>
           </div>
         </div>
