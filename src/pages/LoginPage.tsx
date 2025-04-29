@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
+import logo from "../assets/Logo.png";
+import logoBig from "../assets/LogoBig.png";
 import {
   Card,
   CardContent,
@@ -47,15 +49,26 @@ const LoginPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
-      <div className="w-full max-w-md">
+    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 overflow-hidden">
+      <img
+        src={logoBig}
+        alt="Background Logo"
+        className="absolute right-0 top-0 w-1/2 max-w-xl opacity-10 pointer-events-none select-none"
+      />
+
+      <div className="w-full max-w-md z-10">
+        <div className="flex flex-col items-center mb-6">
+          <img src={logo} alt="Pharmaseek Logo" className="w-16 h-16 mb-2" />
+          <h1 className="text-3xl font-bold tracking-wider text-white">Pharmaseek</h1>
+        </div>
+
         <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-sm">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center text-gray-100">
-              Pharmaseek Admin Portal
+              Hi, Welcome Back
             </CardTitle>
             <CardDescription className="text-center text-gray-400">
-              Sign in to manage your pharmacy products
+              Enter your credentials to continue
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
