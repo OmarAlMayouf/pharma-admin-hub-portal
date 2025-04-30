@@ -13,6 +13,7 @@ import ModifyProductPage from "./pages/ModifyProductPage";
 import AddBranchPage from "./pages/AddBranchPage";
 import DeleteBranchPage from "./pages/DeleteBranchPage";
 import ModifyBranchPage from "./pages/ModifyBranchPage";
+import BulkAddPage from "./pages/BulkAddPage";
 import NotFound from "./pages/NotFound";
 import { useEffect, useState } from "react";
 import { checkSession } from "./services/appwrite";
@@ -44,8 +45,8 @@ const App = () => {
     return (
       <div className="min-h-screen dark-gradient flex flex-col items-center justify-center gap-4 text-white">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-transparent border-emerald-500"></div>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           onClick={async () => {
             await signOut();
             window.location.reload();
@@ -65,10 +66,7 @@ const App = () => {
         <BrowserRouter>
           <AuthProvider>
             <Routes>
-            <Route
-                path="/"
-                element={<LoginPage />}
-              />
+              <Route path="/" element={<LoginPage />} />
               <Route
                 path="/dashboard"
                 element={
@@ -122,6 +120,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <ModifyBranchPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/bulk-add"
+                element={
+                  <ProtectedRoute>
+                    <BulkAddPage />
                   </ProtectedRoute>
                 }
               />

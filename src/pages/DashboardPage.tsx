@@ -383,7 +383,7 @@ const DashboardPage: React.FC = () => {
                     className="w-full bg-gray-800 hover:bg-emerald-700 text-white"
                     onClick={() => navigate("/add-product")}
                   >
-                    Add New
+                    Add
                   </Button>
                 </CardFooter>
               </Card>
@@ -397,14 +397,14 @@ const DashboardPage: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-xs text-gray-500">
-                  Upload CSV to add multiple products
+                  Upload JSON to add multiple products
                 </CardContent>
                 <CardFooter>
                   <Button
                     className="w-full bg-gray-800 hover:bg-violet-700 text-white"
-                    onClick={() => {}}
+                    onClick={() => navigate("/bulk-add")}
                   >
-                    Upload CSV
+                    Upload JSON
                   </Button>
                 </CardFooter>
               </Card>
@@ -476,7 +476,7 @@ const DashboardPage: React.FC = () => {
                     className="w-full bg-gray-800 hover:bg-emerald-700 text-white"
                     onClick={() => navigate("/add-branch")}
                   >
-                    Add New
+                    Add
                   </Button>
                 </CardFooter>
               </Card>
