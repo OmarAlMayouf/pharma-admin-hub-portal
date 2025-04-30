@@ -304,7 +304,7 @@ const MofifyProductPage: React.FC = () => {
                     >
                       {filteredProducts.map((product) => (
                         <div
-                          key={product.id}
+                          key={product.$id}
                           className="flex items-center p-3 border-t border-gray-800 hover:bg-gray-800/50 cursor-pointer"
                           onClick={() => handleSelectProduct(product)}
                         >

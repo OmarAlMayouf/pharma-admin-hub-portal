@@ -250,7 +250,7 @@ const ModifyBranchPage: React.FC = () => {
                     >
                       {filteredBranches.map((branch) => (
                         <div
-                          key={branch.id}
+                          key={branch.$id}
                           className="flex items-center p-3 border-t border-gray-800 hover:bg-gray-800/50 cursor-pointer"
                           onClick={() => handleSelectBranches(branch)}
                         >
