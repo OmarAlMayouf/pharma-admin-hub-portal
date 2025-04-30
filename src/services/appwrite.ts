@@ -137,6 +137,34 @@ export const getProductsExceptThisByPharmacyId = async (
   }
 };
 
+export const addProducts = async (
+  name: string,
+  price: number,
+  description: string,
+  imageUrl: string,
+  url: string
+) => {
+  try {
+    const response = await databases.createDocument(
+      config.databaseID,
+      config.productCollectionID,
+      ID.unique(),
+      {
+        name: name,
+        price: price,
+        description: description,
+        image: imageUrl,
+        url: url,
+        pharmacyId: localStorage.getItem("pharmacyId"),
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error("Error adding product:", error);
+    throw error;
+  }
+};
+
 export const addProduct = async (
   name: string,
   price: number,
@@ -510,7 +538,10 @@ export const getSearchAnalytics = async () => {
     const response = await databases.listDocuments(
       config.databaseID,
       config.search_logCollectionID,
-      [Query.equal("pharmacyId", localStorage.getItem("pharmacyId")), Query.limit(10000)]
+      [
+        Query.equal("pharmacyId", localStorage.getItem("pharmacyId")),
+        Query.limit(10000),
+      ]
     );
     return response.documents;
   } catch (err) {

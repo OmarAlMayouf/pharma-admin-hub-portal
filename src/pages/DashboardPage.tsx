@@ -362,7 +362,7 @@ const DashboardPage: React.FC = () => {
           {/* Product Management */}
           <div className="mb-6">
             <h4 className="text-md font-medium text-gray-300 mb-4 flex items-center gap-2">
-              <FileCode className="h-4 w-4" />
+              <LayoutDashboard className="h-4 w-4" />
               Product Management
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
