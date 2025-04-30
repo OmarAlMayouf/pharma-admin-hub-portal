@@ -45,6 +45,9 @@ const MofifyProductPage: React.FC = () => {
 
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState<NewProductForm>(initialFormState);
+  const [formErrors, setFormErrors] = useState<
+    Partial<Record<keyof NewProductForm, string>>
+  >({});
   const [productID, setProductID] = useState("");
   const [branches, setBranches] = useState([]);
   const [products, setProducts] = useState([]);
@@ -100,6 +103,53 @@ const MofifyProductPage: React.FC = () => {
     fetchData();
   }, [pharmacy?.id, step]);
 
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const validateStepOne = () => {
+    const isValidPrice = (value: string) => {
+      return /^\d+(\.\d{1,2})?$/.test(value);
+    };
+
+    const errors: typeof formErrors = {};
+
+    if (!formData.name.trim()) {
+      errors.name = "Product name is required.";
+    }
+
+    if (!formData.price.trim()) {
+      errors.price = "Price is required.";
+    } else if (
+      !isValidPrice(formData.price) ||
+      isNaN(+formData.price) ||
+      parseFloat(formData.price) <= 0
+    ) {
+      errors.price = "Enter a valid positive price (up to two decimal places).";
+    }
+
+    if (!formData.description.trim()) {
+      errors.description = "Description is required.";
+    }
+
+    if (formData.imageUrl && !isValidUrl(formData.imageUrl)) {
+      errors.imageUrl = "Invalid image URL.";
+    }
+
+    if (formData.url && !isValidUrl(formData.url)) {
+      errors.url = "Invalid product URL.";
+    }
+
+    setFormErrors(errors);
+
+    return Object.keys(errors).length === 0;
+  };
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -126,21 +176,7 @@ const MofifyProductPage: React.FC = () => {
   };
 
   const nextStep = () => {
-    if (step === 1) {
-      if (
-        !formData.name.trim() ||
-        !formData.description.trim() ||
-        !formData.price.trim() ||
-        isNaN(+formData.price)
-      ) {
-        toast({
-          variant: "destructive",
-          title: "Validation Error",
-          description: "Please fill all required fields correctly.",
-        });
-        return;
-      }
-    }
+    if (step === 1 && !validateStepOne()) return;
     if (step === 2) {
       if (formData.branches.length === 0) {
         toast({
@@ -312,18 +348,23 @@ const MofifyProductPage: React.FC = () => {
                       placeholder="Enter product name"
                       className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                     />
+                    {formErrors.name && (
+                      <p className="text-sm text-red-500">{formErrors.name}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="price">Price (SAR) *</Label>
                     <Input
                       name="price"
-                      type="number"
                       value={formData.price}
                       onChange={handleInputChange}
                       placeholder="Enter price"
                       className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                     />
+                    {formErrors.price && (
+                      <p className="text-sm text-red-500">{formErrors.price}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -337,6 +378,11 @@ const MofifyProductPage: React.FC = () => {
                       style={{ scrollbarColor: "#374151 #1f2937" }}
                       className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500 resize-none"
                     />
+                    {formErrors.description && (
+                      <p className="text-sm text-red-500">
+                        {formErrors.description}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -348,6 +394,11 @@ const MofifyProductPage: React.FC = () => {
                       placeholder="Optional image link"
                       className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                     />
+                    {formErrors.imageUrl && (
+                      <p className="text-sm text-red-500">
+                        {formErrors.imageUrl}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="url">Product URL</Label>
@@ -358,16 +409,10 @@ const MofifyProductPage: React.FC = () => {
                       placeholder="Optional product link"
                       className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                     />
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="pharmacyId">Pharmacy ID</Label>
-                    <Input
-                      id="pharmacyId"
-                      value={pharmacy?.id || ""}
-                      disabled
-                      className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
-                    />
+                    {formErrors.url && (
+                      <p className="text-sm text-red-500">{formErrors.url}</p>
+                    )}
                   </div>
 
                   <div className="flex justify-between pt-4">

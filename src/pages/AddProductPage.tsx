@@ -90,7 +90,6 @@ const AddProductPage: React.FC = () => {
   };
 
   const validateStepOne = () => {
-
     const isValidPrice = (value: string) => {
       return /^\d+(\.\d{1,2})?$/.test(value);
     };
@@ -103,9 +102,11 @@ const AddProductPage: React.FC = () => {
 
     if (!formData.price.trim()) {
       errors.price = "Price is required.";
-    }
-
-    if (!isValidPrice(formData.price) || isNaN(+formData.price) || parseFloat(formData.price) <= 0) {
+    } else if (
+      !isValidPrice(formData.price) ||
+      isNaN(+formData.price) ||
+      parseFloat(formData.price) <= 0
+    ) {
       errors.price = "Enter a valid positive price (up to two decimal places).";
     }
 
@@ -255,7 +256,6 @@ const AddProductPage: React.FC = () => {
                   <Label htmlFor="price">Price (SAR) *</Label>
                   <Input
                     name="price"
-                    type="number"
                     value={formData.price}
                     onChange={handleInputChange}
                     placeholder="Enter price"
