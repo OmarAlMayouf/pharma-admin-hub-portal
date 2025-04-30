@@ -42,6 +42,9 @@ const AddProductPage: React.FC = () => {
 
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<NewProductForm>(initialFormState);
+  const [formErrors, setFormErrors] = useState<
+    Partial<Record<keyof NewProductForm, string>>
+  >({});
   const [branches, setBranches] = useState([]);
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -77,11 +80,58 @@ const AddProductPage: React.FC = () => {
     fetchData();
   }, [pharmacy?.id, step]);
 
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const validateStepOne = () => {
+
+    const isValidPrice = (value: string) => {
+      return /^\d+(\.\d{1,2})?$/.test(value);
+    };
+
+    const errors: typeof formErrors = {};
+
+    if (!formData.name.trim()) {
+      errors.name = "Product name is required.";
+    }
+
+    if (!formData.price.trim()) {
+      errors.price = "Price is required.";
+    }
+
+    if (!isValidPrice(formData.price) || isNaN(+formData.price) || parseFloat(formData.price) <= 0) {
+      errors.price = "Enter a valid positive price (up to two decimal places).";
+    }
+
+    if (!formData.description.trim()) {
+      errors.description = "Description is required.";
+    }
+
+    if (formData.imageUrl && !isValidUrl(formData.imageUrl)) {
+      errors.imageUrl = "Invalid image URL.";
+    }
+
+    if (formData.url && !isValidUrl(formData.url)) {
+      errors.url = "Invalid product URL.";
+    }
+
+    setFormErrors(errors);
+
+    return Object.keys(errors).length === 0;
+  };
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
   const handleBranchToggle = (branchId: string, checked: boolean) => {
@@ -103,31 +153,18 @@ const AddProductPage: React.FC = () => {
   };
 
   const nextStep = () => {
-    if (step === 1) {
-      if (
-        !formData.name.trim() ||
-        !formData.description.trim() ||
-        !formData.price.trim() ||
-        isNaN(+formData.price)
-      ) {
-        toast({
-          variant: "destructive",
-          title: "Validation Error",
-          description: "Please fill all required fields correctly.",
-        });
-        return;
-      }
+    if (step === 1 && !validateStepOne()) return;
+
+    if (step === 2 && formData.branches.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Please select at least one branch.",
+      });
+      return;
     }
-    if (step === 2) {
-      if (formData.branches.length === 0) {
-        toast({
-          variant: "destructive",
-          title: "Validation Error",
-          description: "Please select at least one branch.",
-        });
-        return;
-      }
-    }
+
+    setFormErrors({});
     setStep((prev) => prev + 1);
   };
 
@@ -209,6 +246,9 @@ const AddProductPage: React.FC = () => {
                     placeholder="Enter product name"
                     className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                   />
+                  {formErrors.name && (
+                    <p className="text-sm text-red-500">{formErrors.name}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -221,6 +261,9 @@ const AddProductPage: React.FC = () => {
                     placeholder="Enter price"
                     className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                   />
+                  {formErrors.price && (
+                    <p className="text-sm text-red-500">{formErrors.price}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -234,6 +277,11 @@ const AddProductPage: React.FC = () => {
                     style={{ scrollbarColor: "#374151 #1f2937" }}
                     className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500 resize-none"
                   />
+                  {formErrors.description && (
+                    <p className="text-sm text-red-500">
+                      {formErrors.description}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -245,6 +293,11 @@ const AddProductPage: React.FC = () => {
                     placeholder="Optional image link"
                     className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                   />
+                  {formErrors.imageUrl && (
+                    <p className="text-sm text-red-500">
+                      {formErrors.imageUrl}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="url">Product URL</Label>
@@ -255,6 +308,9 @@ const AddProductPage: React.FC = () => {
                     placeholder="Optional product link"
                     className="bg-gray-900/50 border-gray-700 text-gray-300/70 placeholder:text-gray-500"
                   />
+                  {formErrors.url && (
+                    <p className="text-sm text-red-500">{formErrors.url}</p>
+                  )}
                 </div>
 
                 <div className="flex justify-end pt-4">

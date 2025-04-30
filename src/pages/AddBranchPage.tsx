@@ -59,20 +59,36 @@ const AddBranchPage: React.FC = () => {
   const validateForm = () => {
     let formErrors: any = {};
 
-    const urlRegex =
-      /^(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([/\w\.-]*)*\/?$/i;
+    const isValidUrl = (url: string) => {
+      try {
+        new URL(url);
+        return true;
+      } catch {
+        return false;
+      }
+    };
+
+    const isValidRating = (value: string) => {
+      return /^\d+(\.\d{1,1})?$/.test(value);
+    };
 
     if (!formData.name) formErrors.name = "Branch Name is required.";
     if (!formData.latitude) formErrors.latitude = "Latitude is required.";
     if (!formData.longitude) formErrors.longitude = "Longitude is required.";
-    if (formData.rating && (formData.rating < 0 || formData.rating > 5))
-      formErrors.rating = "Rating should be between 0 and 5.";
+    if (
+      (formData.rating &&
+        (!isValidRating(formData.rating.toString()) ||
+        formData.rating < 0 ||
+        formData.rating > 5))
+    )
+      formErrors.rating =
+        "Rating should be between 0 and 5. (up to one decimal place)";
 
-    if (formData.site_url && !urlRegex.test(formData.site_url)) {
+    if (formData.site_url && !isValidUrl(formData.site_url)) {
       formErrors.site_url = "Website URL must be valid.";
     }
 
-    if (formData.location_link && !urlRegex.test(formData.location_link)) {
+    if (formData.location_link && !isValidUrl(formData.location_link)) {
       formErrors.location_link = "Location URL must be valid.";
     }
 
