@@ -53,7 +53,7 @@ export interface NewBranchForm {
   city?: string;
   latitude: number;
   longitude: number;
-  rating?: number;
+  rating?: string;
   working_hours?: string;
   about?: string;
   location_link?: string;

@@ -98,7 +98,6 @@ const DashboardPage: React.FC = () => {
       try {
         setChartLoading(true);
         const data = await getSearchAnalytics();
-        console.log("Data:", data);
         const grouped = {};
 
         data.forEach((entry) => {

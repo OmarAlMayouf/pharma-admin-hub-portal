@@ -76,7 +76,11 @@ const ModifyBranchPage: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
   const prevStep = () => setStep((prev) => prev - 1);
@@ -84,20 +88,39 @@ const ModifyBranchPage: React.FC = () => {
   const validateForm = () => {
     let formErrors: any = {};
 
-    const urlRegex =
-      /^(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([/\w\.-]*)*\/?$/i;
+    const isValidUrl = (url: string) => {
+      try {
+        new URL(url);
+        return true;
+      } catch {
+        return false;
+      }
+    };
+
+    const isValidRating = (value: any) => {
+      const str = String(value).trim();
+      if (str.toLowerCase().includes("e")) return false;
+      const validPattern = /^(?:[0-4](?:\.\d)?|5(?:\.0)?)$/;
+      return validPattern.test(str);
+    };
 
     if (!formData.name) formErrors.name = "Branch Name is required.";
     if (!formData.latitude) formErrors.latitude = "Latitude is required.";
     if (!formData.longitude) formErrors.longitude = "Longitude is required.";
-    if (formData.rating && (formData.rating < 0 || formData.rating > 5))
-      formErrors.rating = "Rating should be between 0 and 5.";
+    if (
+      formData.rating &&
+      (!isValidRating(formData.rating) ||
+        parseFloat(formData.rating) < 0 ||
+        parseFloat(formData.rating) > 5)
+    )
+      formErrors.rating =
+        "Rating should be between 0 and 5. (up to one decimal place)";
 
-    if (formData.site_url && !urlRegex.test(formData.site_url)) {
+    if (formData.site_url && !isValidUrl(formData.site_url)) {
       formErrors.site_url = "Website URL must be valid.";
     }
 
-    if (formData.location_link && !urlRegex.test(formData.location_link)) {
+    if (formData.location_link && !isValidUrl(formData.location_link)) {
       formErrors.location_link = "Location URL must be valid.";
     }
 
@@ -124,7 +147,7 @@ const ModifyBranchPage: React.FC = () => {
         formData.site_url || null,
         formData.location_link || null,
         formData.working_hours,
-        formData.rating,
+        formData.rating ? parseFloat(formData.rating) : null,
         formData.about,
         branchID
       );
@@ -375,10 +398,6 @@ const ModifyBranchPage: React.FC = () => {
                     <Label className="text-gray-300">Rating</Label>
                     <Input
                       name="rating"
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="5"
                       value={formData.rating ?? ""}
                       onChange={handleInputChange}
                       placeholder="Enter rating (0-5)"

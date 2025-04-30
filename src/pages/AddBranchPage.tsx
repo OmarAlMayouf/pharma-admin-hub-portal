@@ -4,18 +4,12 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { ArrowLeft, Building2, Save } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { NewBranchForm } from "@/types/pharmacy";
 import { addBranch } from "@/services/appwrite";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const initialFormState: NewBranchForm = {
   name: "",
@@ -46,12 +40,7 @@ const AddBranchPage: React.FC = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        name === "latitude" || name === "longitude" || name === "rating"
-          ? value === ""
-            ? undefined
-            : parseFloat(value)
-          : value,
+      [name]: value,
     }));
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
@@ -68,18 +57,21 @@ const AddBranchPage: React.FC = () => {
       }
     };
 
-    const isValidRating = (value: string) => {
-      return /^\d+(\.\d{1,1})?$/.test(value);
+    const isValidRating = (value: any) => {
+      const str = String(value).trim();
+      if (str.toLowerCase().includes("e")) return false;
+      const validPattern = /^(?:[0-4](?:\.\d)?|5(?:\.0)?)$/;
+      return validPattern.test(str);
     };
 
     if (!formData.name) formErrors.name = "Branch Name is required.";
     if (!formData.latitude) formErrors.latitude = "Latitude is required.";
     if (!formData.longitude) formErrors.longitude = "Longitude is required.";
     if (
-      (formData.rating &&
-        (!isValidRating(formData.rating.toString()) ||
-        formData.rating < 0 ||
-        formData.rating > 5))
+      formData.rating &&
+      (!isValidRating(formData.rating) ||
+        parseFloat(formData.rating) < 0 ||
+        parseFloat(formData.rating) > 5)
     )
       formErrors.rating =
         "Rating should be between 0 and 5. (up to one decimal place)";
@@ -115,7 +107,7 @@ const AddBranchPage: React.FC = () => {
         formData.site_url || null,
         formData.location_link || null,
         formData.working_hours,
-        formData.rating,
+        formData.rating ? parseFloat(formData.rating) : null,
         formData.about
       );
       toast({ title: "Success", description: "Branch added successfully!" });
@@ -274,10 +266,6 @@ const AddBranchPage: React.FC = () => {
                 <Label className="text-gray-300">Rating</Label>
                 <Input
                   name="rating"
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="5"
                   value={formData.rating ?? ""}
                   onChange={handleInputChange}
                   placeholder="Enter rating (0-5)"
