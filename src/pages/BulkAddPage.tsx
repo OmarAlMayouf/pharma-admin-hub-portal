@@ -253,6 +253,7 @@ const BulkAddPage: React.FC = () => {
       let failCount = 0;
 
       for (let i = 0; i < products.length; i++) {
+
         const product = products[i];
         try {
           await addProducts(
@@ -265,6 +266,7 @@ const BulkAddPage: React.FC = () => {
           successCount++;
         } catch (error) {
           console.error(`Error adding product ${product.name}:`, error);
+          i--;
           failCount++;
         }
 

@@ -136,6 +136,11 @@ export const getProductsExceptThisByPharmacyId = async (
     return [];
   }
 };
+export const cleanAboutText = (text: any) => {
+  if (!text || typeof text !== "string") return "";
+
+  return text.replace(/\s+/g, " ").trim();
+};
 
 export const addProducts = async (
   name: string,
@@ -152,7 +157,7 @@ export const addProducts = async (
       {
         name: name,
         price: price,
-        description: description,
+        description: cleanAboutText(description),
         image: imageUrl,
         url: url,
         pharmacyId: localStorage.getItem("pharmacyId"),
