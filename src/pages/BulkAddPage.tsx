@@ -94,6 +94,12 @@ const BulkAddPage: React.FC = () => {
       };
 
       data.forEach((product, index) => {
+        product.name = product.name?.trim();
+        product.price = product.price?.trim();
+        product.description = (product.description || product.about)?.trim();
+        product.imageUrl = (product.imageUrl || product.img)?.trim();
+        product.url = product.url?.trim();
+
         if (
           !product.name ||
           typeof product.name !== "string" ||
