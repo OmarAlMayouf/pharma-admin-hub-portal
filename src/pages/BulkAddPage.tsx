@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,8 @@ const BulkAddPage: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeTab, setActiveTab] = useState("json");
 
   const [validationResult, setValidationResult] = useState<{
     valid: boolean;
@@ -122,23 +124,18 @@ const BulkAddPage: React.FC = () => {
           );
         }
 
-        const desc = product.description || product.about;
-        if (!desc || typeof desc !== "string" || !desc.trim()) {
+        if (!product.description || typeof product.description !== "string") {
           validationErrors.push(
             `Product ${index + 1}: Description is required`
           );
-        } else {
-          product.description = desc;
         }
 
-        const image = product.imageUrl || product.img;
-        if (image) {
-          if (typeof image !== "string" || !image.trim()) {
+        if (product.imageUrl) {
+          if (typeof product.imageUrl !== "string") {
             validationErrors.push(`Product ${index + 1}: Image URL is invalid`);
           } else {
             try {
-              new URL(image);
-              product.imageUrl = image;
+              new URL(product.imageUrl);
             } catch {
               validationErrors.push(
                 `Product ${index + 1}: Image URL is invalid`
@@ -218,6 +215,7 @@ const BulkAddPage: React.FC = () => {
         return;
       }
       setJsonData(content);
+      setActiveTab("json");
       const result = validateJson(content);
       setValidationResult(result);
     };
@@ -259,7 +257,6 @@ const BulkAddPage: React.FC = () => {
       let failCount = 0;
 
       for (let i = 0; i < products.length; i++) {
-
         const product = products[i];
         try {
           await addProducts(
@@ -334,7 +331,11 @@ const BulkAddPage: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="json" className="w-full">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="json">JSON Input</TabsTrigger>
                 <TabsTrigger value="file">File Upload</TabsTrigger>
@@ -386,9 +387,21 @@ const BulkAddPage: React.FC = () => {
                     onChange={handleFileUpload}
                   />
                   <label htmlFor="file-upload">
-                    <Button variant="secondary" className="cursor-pointer">
+                    <Button
+                      variant="secondary"
+                      className="cursor-pointer"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
                       Select File
                     </Button>
+
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      accept=".json,application/json"
+                    />
                   </label>
                   {jsonData && (
                     <p className="mt-4 text-sm text-gray-400">
