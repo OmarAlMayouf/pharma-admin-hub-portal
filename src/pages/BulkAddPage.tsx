@@ -284,7 +284,7 @@ const BulkAddPage: React.FC = () => {
 
       toast({
         title: "Bulk Upload Complete",
-        description: `Successfully added ${successCount} products. ${failCount} failed.`,
+        description: `Successfully added ${successCount}.`,
       });
 
       if (successCount > 0 && failCount === 0) {
@@ -457,8 +457,7 @@ const BulkAddPage: React.FC = () => {
                 <div className="flex justify-between text-sm text-gray-400">
                   <span>Uploading products...</span>
                   <span>
-                    {uploadStatus.success} successful, {uploadStatus.failed}{" "}
-                    failed (of {uploadStatus.total})
+                    {uploadStatus.success} successful
                   </span>
                 </div>
               </div>
