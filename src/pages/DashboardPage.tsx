@@ -35,8 +35,6 @@ import {
   LayoutDashboard,
   Building2,
   Search,
-  Paperclip,
-  FileCode,
   FilePlus2,
 } from "lucide-react";
 
@@ -157,6 +155,12 @@ const DashboardPage: React.FC = () => {
     return <Navigate to="/" />;
   }
 
+  function handleLogout(): void {
+    const flag = confirm("Are you sure you want to log out?")
+    if (!flag) return;
+    logout();
+  }
+
   return (
     <div className="min-h-screen dark-gradient">
       <header className="glass-effect sticky top-0 z-10">
@@ -172,7 +176,7 @@ const DashboardPage: React.FC = () => {
           <Button
             variant="outline"
             className="flex items-center gap-1 bg-gray-700/50 hover:bg-gray-600/50"
-            onClick={() => logout()}
+            onClick={() => handleLogout()}
           >
             <LogOut className="h-4 w-4" />
             Sign Out
