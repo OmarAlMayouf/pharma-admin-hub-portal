@@ -95,7 +95,7 @@ export const getBranchesByPharmacyId = async (pharmacyId: string) => {
     const response = await databases.listDocuments(
       config.databaseID,
       config.branchCollectionID,
-      [Query.equal("pharmacyId", pharmacyId)]
+      [Query.equal("pharmacyId", pharmacyId), Query.limit(10000)]
     );
     return response.documents;
   } catch (error) {
