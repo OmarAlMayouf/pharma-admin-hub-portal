@@ -178,11 +178,11 @@ const MofifyProductPage: React.FC = () => {
   const nextStep = () => {
     if (step === 1 && !validateStepOne()) return;
     if (step === 2) {
-      if (formData.branches.length === 0) {
+      if (formData.branches.length === branches.length) {
         toast({
           variant: "destructive",
           title: "Validation Error",
-          description: "Please select at least one branch.",
+          description: "Please Deselect at least one branch.",
         });
         return;
       }
@@ -429,7 +429,12 @@ const MofifyProductPage: React.FC = () => {
 
             {step === 2 && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Branch Availability</h3>
+                <div>
+                  <h3 className="text-lg font-semibold">Branch Availability</h3>
+                  <h5 className="text-sm font-normal text-gray-300">
+                    Select Branches that this product is NOT available in
+                  </h5>
+                </div>
 
                 {loading ? (
                   <p className="text-center py-8">Loading branches...</p>
