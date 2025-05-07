@@ -36,6 +36,8 @@ import {
   Building2,
   Search,
   FilePlus2,
+  Code,
+  FolderCode,
 } from "lucide-react";
 
 const DashboardPage: React.FC = () => {
@@ -522,6 +524,36 @@ const DashboardPage: React.FC = () => {
                     onClick={() => navigate("/delete-branch")}
                   >
                     Delete
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+          </div>
+          
+          {/* API Management */}
+          <div className="mb-6">
+            <h4 className="text-md font-medium text-gray-300 mb-4 flex items-center gap-2">
+              <FolderCode className="h-4 w-4" />
+              API Management
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* API Integration Card */}
+              <Card className="bg-gray-900 hover:bg-gray-950 border-l-4 border-l-yellow-500 transition-all hover:scale-105 duration-200 ease-in-out">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-yellow-400 text-sm">
+                    <Code className="h-4 w-4" />
+                    API Integration
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-xs text-gray-500">
+                  Integrate your pharamcy with an API
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    className="w-full bg-gray-800 hover:bg-yellow-600 text-white"
+                    onClick={() => {}}
+                  >
+                    Comming Soon
                   </Button>
                 </CardFooter>
               </Card>
